@@ -1,6 +1,6 @@
 app = dict(
-    data_dir = 'data',
-    tmp_dir = 'tmp',
-    bin_dir = 'bin',
-    settings_file = 'gtfsgateway.yaml'
+    data_directory = 'data',
+    tmp_directory = 'tmp',
+    bin_directory = 'bin',
+    gateway_config_file = 'gtfsgateway.yaml'
 )
