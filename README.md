@@ -1,2 +1,4 @@
-# gtfsgateway
-application for loading, preprocessing and re-publishing of GTFS feeds
+# GTFS.Gateway
+Simple application for loading, preprocessing and publishing of GTFS feeds.
+
+Documentation in progress . . . .
