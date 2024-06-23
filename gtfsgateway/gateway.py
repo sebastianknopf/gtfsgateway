@@ -5,31 +5,52 @@ import subprocess
 from urllib.request import urlretrieve
 
 from .common.filesystem import clear_directory
-from .data.database import LocalDatabase
+from .common.filesystem import copy_file
+from .data.database import StaticDatabase
 
 class Gateway:
     
-    def __init__(self, app_config):
+    def __init__(self, app_config, gateway_config_filename):
         self._app_config = app_config
         
-        with open(self._app_config['gateway_config_file']) as stream:
+        with open(gateway_config_filename) as stream:
             try:
                 self._gateway_config = yaml.safe_load(stream)
             except yaml.YAMLError as ex:
-                pass
+                print(ex)
 
-        self._local_database = LocalDatabase(os.path.join(
+        self._local_database = StaticDatabase(os.path.join(
             self._app_config['data_directory'],
             'gtfsgateway.db3'
         ))
 
         clear_directory(self._app_config['tmp_directory'])
+
+    def create_data_lock(self):
+        local_lock_filename = os.path.join(self._app_config['data_directory'], 'gtfsgateway.lock')
+        if self.has_data_lock():
+            return False
         
-    def download_source_static(self):
-        download_url = self._gateway_config['source']['gtfs']['static_download_url']
+        open(local_lock_filename, 'w').close()
+
+        return True
+
+    def release_data_lock(self):
+        local_lock_filename = os.path.join(self._app_config['data_directory'], 'gtfsgateway.lock')
+        os.remove(local_lock_filename)
+
+    def has_data_lock(self):
+        local_lock_filename = os.path.join(self._app_config['data_directory'], 'gtfsgateway.lock')
+        return os.path.isfile(local_lock_filename)
+        
+    def update_static_feed(self):
+        static_update = self._gateway_config['source']['static']['update']
         destination_file = os.path.join(self._app_config['tmp_directory'], 'gtfsgateway.zip')
         
-        urlretrieve(download_url, destination_file)
+        if static_update.startswith('http'):
+            urlretrieve(static_update, destination_file)
+        else:
+            copy_file(static_update, destination_file)
         
     def run_integration_gtfstidy(self):
         if 'gtfstidy' in self._gateway_config['external']['integration']:
@@ -43,31 +64,27 @@ class Gateway:
                     module_bin,
                     self._gateway_config['external']['integration']['gtfstidy']['args'],
                     os.path.join(
-                        self._gateway_config['external']['integration']['gtfstidy']['working_directory'], 
+                        self._app_config['tmp_directory'], 
                         'gtfsgateway.zip'
                     ),
                     '-o',
-                    self._gateway_config['external']['integration']['gtfstidy']['working_directory']
+                    self._app_config['tmp_directory']
                 )
             
                 popen = subprocess.Popen(args, stdout=subprocess.PIPE)
                 popen.wait()
 
-    
-
     def load_local_sqlite(self):
-        # need to close the local database temporary in order to create backup file
-        self._local_database.close()
-        
-        os.rename(
-            os.path.join(self._app_config['data_directory'], 'gtfsgateway.db3'),
-            os.path.join(self._app_config['data_directory'], 'gtfsgateway.bak')
-        )
+        local_database_filename = os.path.join(self._app_config['data_directory'], 'gtfsgateway.db3')
+        local_backup_filename = os.path.join(self._app_config['data_directory'], 'gtfsgateway.bak')
 
-        self._local_database = LocalDatabase(os.path.join(
-            self._app_config['data_directory'],
-            'gtfsgateway.db3'
-        ))
+        # need to close the local database temporary in order to create backup file
+        if os.path.isfile(local_database_filename):   
+            self._local_database.close()
+            
+            os.rename(local_database_filename, local_backup_filename)
+
+            self._local_database = StaticDatabase(local_database_filename)
 
         # import all existing GTFS files
         for f in os.listdir(self._app_config['tmp_directory']):
@@ -79,6 +96,16 @@ class Gateway:
 
         clear_directory(self._app_config['tmp_directory'])
 
-        os.remove(
-            os.path.join(self._app_config['data_directory'], 'gtfsgateway.bak')
+        # remove backup since import worked properly
+        if os.path.isfile(local_backup_filename):
+            os.remove(local_backup_filename)
+
+    def create_release_database(self):
+        release_database_filename = os.path.join(self._app_config['tmp_directory'], 'gtfsgateway.db3')
+        
+        copy_file(
+            os.path.join(self._app_config['data_directory'], 'gtfsgateway.db3'),
+            release_database_filename
         )
+
+        self._release_database = StaticDatabase(release_database_filename)

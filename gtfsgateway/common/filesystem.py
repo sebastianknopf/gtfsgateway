@@ -7,3 +7,11 @@ def clear_directory(directory):
             continue
 
         os.remove(os.path.join(directory, f))
+
+def copy_file(src, dest):
+    with open(src, 'rb') as src_file:
+        with open(dest, 'wb') as dest_file:
+            dest_file.write(src_file.read())
+            dest_file.close()
+
+        src_file.close()

@@ -163,7 +163,7 @@ cython_debug/
 
 # application specific
 
-gtfsgateway.yaml
+productive.yaml
 data/
 tmp/
 bin/

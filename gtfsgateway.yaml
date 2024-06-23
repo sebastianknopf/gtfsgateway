@@ -1,0 +1,9 @@
+source:
+    static:
+        update: 'https://url.to/your/gtfs/feed.zip'
+
+external:
+    integration:
+        gtfstidy: 
+            name: 'gtfstidy.v0.2.windows.amd64.exe'
+            args: '-OscCeD'
