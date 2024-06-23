@@ -85,7 +85,9 @@ class Gateway:
 
     def _run_external_integration_gtfsvtor(self):
         args = [
-            os.path.join(self._app_config['data_directory'], 'gtfsgateway.zip')
+            os.path.join(self._app_config['data_directory'], 'gtfsgateway.zip'),
+            '-o',
+            os.path.join(self._app_config['data_directory'], 'gtfsgateway.html')
         ]
         
         self._run_external_integration('gtfsvtor', args)
