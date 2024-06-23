@@ -13,6 +13,6 @@ def main():
 
     if args.command == 'update':
         gateway.update()
-    elif args.command == 'release':
-        gateway.release()
+    elif args.command == 'process':
+        gateway.process()
 

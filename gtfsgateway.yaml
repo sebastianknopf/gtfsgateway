@@ -2,6 +2,16 @@ source:
     static:
         update: 'https://url.to/your/gtfs/feed.zip'
 
+process:
+    routes:
+    - id: 'route-101'
+      name: '101'
+      published: true
+    - id: 'route-102'
+      name: '102'
+      published: false
+
+
 external:
     integration:
         gtfstidy: 

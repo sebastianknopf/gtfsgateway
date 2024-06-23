@@ -15,7 +15,8 @@ class Gateway:
     def __init__(self, app_config, gateway_config_filename):
         self._app_config = app_config
         
-        with open(gateway_config_filename) as stream:
+        self._gateway_config_filename = gateway_config_filename
+        with open(self._gateway_config_filename) as stream:
             try:
                 self._gateway_config = yaml.safe_load(stream)
             except yaml.YAMLError as ex:
@@ -113,6 +114,27 @@ class Gateway:
         if os.path.isfile(local_backup_filename):
             os.remove(local_backup_filename)
 
+    def _create_route_index(self):
+        gateway_config_process_routes = self._gateway_config['process']['routes']
+        gateway_config_process_routes = list()
+
+        routes = self._local_database.get_route_base_info()
+        for route in routes:
+            gateway_config_process_routes.append({
+                'name': route[1],
+                'id': route[0],
+                'published': False
+            })
+
+        self._gateway_config['process']['routes'] = gateway_config_process_routes
+
+        with open(self._gateway_config_filename, 'w') as gateway_config_file:
+            yaml.dump(
+                self._gateway_config,
+                gateway_config_file,
+                default_flow_style=False
+            )
+
     def _create_release_database(self):
         release_database_filename = os.path.join(self._app_config['tmp_directory'], 'gtfsgateway.db3')
         
@@ -145,6 +167,7 @@ class Gateway:
                 self._update_static_feed()
                 self._run_external_integration_gtfstidy()
                 self._load_local_sqlite()
+                self._create_route_index()
 
                 self._release_data_lock()
                 self._local_database.close()
@@ -156,7 +179,7 @@ class Gateway:
         else:
             return False
 
-    def release(self, **args):
+    def process(self, **args):
         if self._create_data_lock():
             try:
                 self._create_release_database()
