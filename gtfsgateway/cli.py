@@ -12,16 +12,7 @@ def main():
     gateway = Gateway(app_config, args.gatewayconfig)
 
     if args.command == 'update':
-        if gateway.create_data_lock():
-            gateway.update_static_feed()
-            gateway.run_integration_gtfstidy()
-            gateway.load_local_sqlite()
-
-            gateway.release_data_lock()
-
+        gateway.update()
     elif args.command == 'release':
-        if gateway.create_data_lock():
-            gateway.create_publish_copy()
-
-            gateway.release_data_lock()
+        gateway.release()
 
