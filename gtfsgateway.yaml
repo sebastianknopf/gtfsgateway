@@ -2,7 +2,7 @@ source:
     static:
         update: 'https://url.to/your/gtfs/feed.zip'
 
-process:
+processing:
     routes:
     - id: 'route-101'
       name: '101'

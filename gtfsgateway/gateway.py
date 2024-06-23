@@ -1,5 +1,6 @@
 import os
 import yaml
+import importlib
 import subprocess
 
 from urllib.request import urlretrieve
@@ -115,18 +116,18 @@ class Gateway:
             os.remove(local_backup_filename)
 
     def _create_route_index(self):
-        gateway_config_process_routes = self._gateway_config['process']['routes']
-        gateway_config_process_routes = list()
+        gateway_config_processing_routes = self._gateway_config['processing']['routes']
+        gateway_config_processing_routes = list()
 
         routes = self._local_database.get_route_base_info()
         for route in routes:
-            gateway_config_process_routes.append({
+            gateway_config_processing_routes.append({
                 'name': route[1],
                 'id': route[0],
                 'published': False
             })
 
-        self._gateway_config['process']['routes'] = gateway_config_process_routes
+        self._gateway_config['processing']['routes'] = gateway_config_processing_routes
 
         with open(self._gateway_config_filename, 'w') as gateway_config_file:
             yaml.dump(
@@ -135,20 +136,31 @@ class Gateway:
                 default_flow_style=False
             )
 
-    def _create_release_database(self):
-        release_database_filename = os.path.join(self._app_config['tmp_directory'], 'gtfsgateway.db3')
+    def _create_processing_database(self):
+        processing_database_filename = os.path.join(self._app_config['tmp_directory'], 'gtfsgateway.db3')
         
         copy_file(
             os.path.join(self._app_config['data_directory'], 'gtfsgateway.db3'),
-            release_database_filename
+            processing_database_filename
         )
 
-        self._release_database = StaticDatabase(release_database_filename)
+        self._processing_database = StaticDatabase(processing_database_filename)
 
-    def _export_release_sqlite(self):
-        if self._release_database is not None:
-            self._release_database.export_csv_files(self._app_config['tmp_directory'])
-            self._release_database.close()
+    def _run_processing_functions(self):
+        for function in self._app_config['processing']['functions']:
+            module = importlib.import_module(f".processing.{function}", 'gtfsgateway')
+            call = getattr(module, function)
+
+            if function == 'remove_routes':
+                route_ids = [route['id'] for route in self._gateway_config['processing']['routes'] if route['published'] == False]
+                call(self._processing_database, route_ids)
+            else:
+                call(self._processing_database)
+
+    def _export_processing_sqlite(self):
+        if self._processing_database is not None:
+            self._processing_database.export_csv_files(self._app_config['tmp_directory'])
+            self._processing_database.close()
 
             os.remove(
                 os.path.join(self._app_config['tmp_directory'], 'gtfsgateway.db3')
@@ -170,11 +182,11 @@ class Gateway:
                 self._create_route_index()
 
                 self._release_data_lock()
+
                 self._local_database.close()
 
                 return True
             except Exception as ex:
-                print(ex)
                 return False
         else:
             return False
@@ -182,17 +194,17 @@ class Gateway:
     def process(self, **args):
         if self._create_data_lock():
             try:
-                self._create_release_database()
-
-                self._export_release_sqlite()
-
+                self._create_processing_database()
+                self._run_processing_functions()
+                self._export_processing_sqlite()
                 self._run_external_integration_gtfsvtor()
 
                 self._release_data_lock()
-                self._release_database.close()
+                self._processing_database.close()
 
                 return True
             except Exception as ex:
+                print(ex)
                 return False
         else:
             return False
