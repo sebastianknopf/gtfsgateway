@@ -2,6 +2,7 @@ import os
 import yaml
 import importlib
 import subprocess
+import ftplib
 
 from urllib.request import urlretrieve
 
@@ -173,6 +174,25 @@ class Gateway:
 
             clear_directory(self._app_config['tmp_directory'])
 
+    def _publish_static_feed(self):
+        if 'ftp' in self._gateway_config['publish']['static']:
+            pass
+
+        elif 'filesystem' in self._gateway_config['publish']['static']:
+            source_filename = os.path.join(
+                self._app_config['data_directory'],
+                'gtfsgateway.zip'
+            )
+
+            destination_filename = os.path.join(
+                self._gateway_config['publish']['static']['filesystem']['directory'],
+                self._gateway_config['publish']['static']['filesystem']['filename']
+            )
+
+            os.makedirs(self._gateway_config['publish']['static']['filesystem']['directory'])
+
+            copy_file(source_filename, destination_filename)
+
     def update(self, **args):
         if self._create_data_lock():
             try:
@@ -208,4 +228,16 @@ class Gateway:
                 return False
         else:
             return False
+        
+    def publish(self, **args):
+        try:
+            self._publish_static_feed()
+            return True
+        except Exception as ex:
+            print(ex)
+            return False
+        
+    def reset(self, **args):
+        if self._has_data_lock():
+            pass
             

@@ -15,4 +15,8 @@ def main():
         gateway.update()
     elif args.command == 'process':
         gateway.process()
+    elif args.command == 'publish':
+        gateway.publish()
+    elif args.command == 'reset':
+        gateway.reset()
 

@@ -11,6 +11,15 @@ processing:
       name: '102'
       published: false
 
+publish:
+    static:
+        ftp:
+            host: '127.0.0.1'
+            port: 22
+            username: demo
+            password: password
+            directory: '/'
+            filename: 'gtfs.zip'
 
 external:
     integration:
