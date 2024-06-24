@@ -164,6 +164,6 @@ cython_debug/
 # application specific
 
 productive.yaml
-data/
-tmp/
-bin/
+/data/*
+/tmp/*
+/bin/*

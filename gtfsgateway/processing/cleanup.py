@@ -1,4 +1,4 @@
-def cleanup_data(static_database):
+def cleanup(static_database):
     cursor = static_database.get_connection().cursor()
 
     cursor.execute("DELETE FROM trips WHERE route_id NOT IN (SELECT route_id FROM routes)")
