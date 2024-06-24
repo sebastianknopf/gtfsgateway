@@ -16,7 +16,7 @@ external:
     integration:
         gtfstidy: 
             name: 'gtfstidy\\gtfstidy.v0.2.windows.amd64.exe'
-            args: '-OscCeD'
+            args: '-ROscCeD'
         gtfsvtor:
             name: 'gtfsvtor\\bin\\gtfsvtor.bat'
             args: ''

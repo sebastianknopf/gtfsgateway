@@ -5,7 +5,8 @@ app = dict(
     processing = dict(
         functions = [
             'remove_routes',
-            'remove_shapes'
+            'remove_shapes',
+            'cleanup'
         ]
     )
 )
