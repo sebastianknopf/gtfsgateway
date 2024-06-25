@@ -193,7 +193,7 @@ class Gateway:
 
             copy_file(source_filename, destination_filename)
 
-    def update(self, **args):
+    def fetch(self, **args):
         if self._create_data_lock():
             try:
                 self._update_static_feed()

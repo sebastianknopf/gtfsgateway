@@ -11,8 +11,8 @@ def main():
     
     gateway = Gateway(app_config, args.gatewayconfig)
 
-    if args.command == 'update':
-        gateway.update()
+    if args.command == 'fetch':
+        gateway.fetch()
     elif args.command == 'process':
         gateway.process()
     elif args.command == 'publish':
