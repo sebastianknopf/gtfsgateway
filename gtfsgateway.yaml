@@ -1,8 +1,11 @@
-source:
+fetch:
     static:
-        update: 'https://url.to/your/gtfs/feed.zip'
+        uri: 'https://url.to/your/gtfs/feed.zip'
 
 processing:
+    extend_feed_info:
+        feed_publisher_name: 'Demo Company'
+        feed_publisher_url: 'https://www.demo.com'
     routes:
     - id: 'route-101'
       name: '101'

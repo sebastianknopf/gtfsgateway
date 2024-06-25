@@ -48,8 +48,8 @@ class Gateway:
         local_lock_filename = os.path.join(self._app_config['data_directory'], 'gtfsgateway.lock')
         return os.path.isfile(local_lock_filename)
         
-    def _update_static_feed(self):
-        static_update = self._gateway_config['source']['static']['update']
+    def _fetch_static_feed(self):
+        static_update = self._gateway_config['fetch']['static']['uri']
         destination_file = os.path.join(self._app_config['tmp_directory'], 'gtfsgateway.zip')
         
         if static_update.startswith('http'):
@@ -215,7 +215,7 @@ class Gateway:
     def fetch(self, **args):
         if self._create_data_lock():
             try:
-                self._update_static_feed()
+                self._fetch_static_feed()
                 self._run_external_integration_gtfstidy()
                 self._load_local_sqlite()
                 self._create_route_index()
@@ -226,6 +226,7 @@ class Gateway:
 
                 return True
             except Exception as ex:
+                print(ex)
                 return False
         else:
             return False
