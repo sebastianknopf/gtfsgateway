@@ -1,3 +1,4 @@
+import csv
 import os
 import yaml
 import importlib
@@ -147,6 +148,20 @@ class Gateway:
 
         self._processing_database = StaticDatabase(processing_database_filename)
 
+    def _load_processing_datafile(self, filename, columns, delimiter=';', quotechar='*'):
+        results = list()
+        with open(os.path.join(self._app_config['data_directory'], filename), 'r') as csv_file:
+            csv_reader = csv.DictReader(csv_file, delimiter=delimiter, quotechar=quotechar)
+
+            for row in csv_reader:
+                result = dict()
+                for data_col, csv_col in columns.items():
+                    result[data_col] = row[csv_col]
+
+                results.append(result)
+        
+        return results
+    
     def _run_processing_functions(self):
         for function in self._app_config['processing']['functions']:
             module = importlib.import_module(f".processing.{function}", 'gtfsgateway')
@@ -159,6 +174,14 @@ class Gateway:
                 publisher_name = self._gateway_config['processing']['extend_feed_info']['publisher_name']
                 publisher_url = self._gateway_config['processing']['extend_feed_info']['publisher_url']
                 call(self._processing_database, publisher_name, publisher_url)
+            elif function == 'extend_routes':
+                df_filename = self._gateway_config['processing']['extend_routes']['datafile']['filename']
+                df_columns = self._gateway_config['processing']['extend_routes']['datafile']['columns']
+                df_delimiter = self._gateway_config['processing']['extend_routes']['datafile']['delimiter']
+                df_quotechar = self._gateway_config['processing']['extend_routes']['datafile']['quotechar']
+
+                df_content = self._load_processing_datafile(df_filename, df_columns, df_delimiter, df_quotechar)
+                call(self._processing_database, df_content)
             else:
                 call(self._processing_database)
 

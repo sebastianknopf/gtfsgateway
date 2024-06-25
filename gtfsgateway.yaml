@@ -6,6 +6,15 @@ processing:
     extend_feed_info:
         publisher_name: 'Demo Company'
         publisher_url: 'https://www.demo.com'
+    extend_routes:
+        datafile:
+            filename: 'routedata.csv'
+            delimiter: ';'
+            quotechar: '"'
+            columns:
+                route_short_name: 'Linie'
+                route_color: 'Farbe'
+                route_text_color: 'Textfarbe'
     routes:
     - id: 'route-101'
       name: '101'

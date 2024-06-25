@@ -7,6 +7,7 @@ app = dict(
             'remove_routes',
             'remove_shapes',
             'extend_feed_info',
+            'extend_routes',
             'cleanup'
         ]
     )
