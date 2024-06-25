@@ -155,6 +155,10 @@ class Gateway:
             if function == 'remove_routes':
                 route_ids = [route['id'] for route in self._gateway_config['processing']['routes'] if route['published'] == False]
                 call(self._processing_database, route_ids)
+            elif function == 'extend_feed_info':
+                publisher_name = self._gateway_config['processing']['extend_feed_info']['publisher_name']
+                publisher_url = self._gateway_config['processing']['extend_feed_info']['publisher_url']
+                call(self._processing_database, publisher_name, publisher_url)
             else:
                 call(self._processing_database)
 
@@ -226,7 +230,6 @@ class Gateway:
 
                 return True
             except Exception as ex:
-                print(ex)
                 return False
         else:
             return False
@@ -244,6 +247,7 @@ class Gateway:
 
                 return True
             except Exception as ex:
+                print(ex)
                 return False
         else:
             return False

@@ -6,6 +6,7 @@ app = dict(
         functions = [
             'remove_routes',
             'remove_shapes',
+            'extend_feed_info',
             'cleanup'
         ]
     )

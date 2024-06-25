@@ -4,8 +4,8 @@ fetch:
 
 processing:
     extend_feed_info:
-        feed_publisher_name: 'Demo Company'
-        feed_publisher_url: 'https://www.demo.com'
+        publisher_name: 'Demo Company'
+        publisher_url: 'https://www.demo.com'
     routes:
     - id: 'route-101'
       name: '101'
