@@ -15,6 +15,7 @@ processing:
                 route_short_name: 'Linie'
                 route_color: 'Farbe'
                 route_text_color: 'Textfarbe'
+                route_long_name: 'Beschreibung'
     routes:
     - id: 'route-101'
       name: '101'

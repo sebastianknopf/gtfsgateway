@@ -13,8 +13,9 @@ def extend_routes(static_database, route_data):
 
     for rd in route_data:
         cursor.execute(
-            "UPDATE routes SET route_color = ?, route_text_color = ? WHERE route_short_name = ?",
+            "UPDATE routes SET route_long_name = ?, route_color = ?, route_text_color = ? WHERE route_short_name = ?",
             (
+                rd['route_long_name'],
                 rd['route_color'],
                 rd['route_text_color'],
                 rd['route_short_name']
