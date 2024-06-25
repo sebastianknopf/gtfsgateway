@@ -176,7 +176,26 @@ class Gateway:
 
     def _publish_static_feed(self):
         if 'ftp' in self._gateway_config['publish']['static']:
-            pass
+            ftp = ftplib.FTP()
+
+            ftp.connect(
+                self._gateway_config['publish']['static']['ftp']['host'],
+                self._gateway_config['publish']['static']['ftp']['port']
+            )
+
+            ftp.login(
+                self._gateway_config['publish']['static']['ftp']['username'],
+                self._gateway_config['publish']['static']['ftp']['password']
+            )
+            
+            source_filename = os.path.join(self._app_config['data_directory'], 'gtfsgateway.zip')
+            with open(source_filename, 'rb') as source_file:
+                ftp.storbinary(
+                    f"STOR {self._gateway_config['publish']['static']['ftp']['directory']}/{self._gateway_config['publish']['static']['ftp']['filename']}", 
+                    source_file
+                )
+
+            ftp.quit()
 
         elif 'filesystem' in self._gateway_config['publish']['static']:
             source_filename = os.path.join(
@@ -224,7 +243,6 @@ class Gateway:
 
                 return True
             except Exception as ex:
-                print(ex)
                 return False
         else:
             return False
@@ -234,7 +252,6 @@ class Gateway:
             self._publish_static_feed()
             return True
         except Exception as ex:
-            print(ex)
             return False
         
     def reset(self, **args):
