@@ -256,5 +256,7 @@ class Gateway:
         
     def reset(self, **args):
         if self._has_data_lock():
-            pass
+            self._release_data_lock()
+
+        clear_directory(self._app_config['tmp_directory'])
             
