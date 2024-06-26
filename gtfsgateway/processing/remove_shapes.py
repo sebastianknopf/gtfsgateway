@@ -1,5 +1,5 @@
 def remove_shapes(gateway):
-    cursor = gateway._processing_database._connection.cursor()
+    cursor = gateway.static_database._connection.cursor()
 
     cursor.execute("DELETE FROM shapes")
     cursor.execute("UPDATE trips SET shape_id = ''")

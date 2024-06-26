@@ -167,3 +167,4 @@ productive.yaml
 /data/*
 /tmp/*
 /bin/*
+/app/*

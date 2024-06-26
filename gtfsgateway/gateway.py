@@ -25,15 +25,15 @@ class Gateway:
             except yaml.YAMLError as ex:
                 print(ex)
 
-        self._local_database = StaticDatabase(os.path.join(
-            self._app_config['data_directory'],
-            'gtfsgateway.db3'
+        self.staging_database = StaticDatabase(os.path.join(
+            self._app_config['app_directory'],
+            self._app_config['staging_filename']
         ))
 
         clear_directory(self._app_config['tmp_directory'])
 
     def _create_data_lock(self):
-        local_lock_filename = os.path.join(self._app_config['data_directory'], 'gtfsgateway.lock')
+        local_lock_filename = os.path.join(self._app_config['app_directory'], 'gtfsgateway.lock')
         if self._has_data_lock():
             return False
         
@@ -42,16 +42,16 @@ class Gateway:
         return True
 
     def _release_data_lock(self):
-        local_lock_filename = os.path.join(self._app_config['data_directory'], 'gtfsgateway.lock')
+        local_lock_filename = os.path.join(self._app_config['app_directory'], 'gtfsgateway.lock')
         os.remove(local_lock_filename)
 
     def _has_data_lock(self):
-        local_lock_filename = os.path.join(self._app_config['data_directory'], 'gtfsgateway.lock')
+        local_lock_filename = os.path.join(self._app_config['app_directory'], 'gtfsgateway.lock')
         return os.path.isfile(local_lock_filename)
         
     def _fetch_static_feed(self):
         static_update = self._gateway_config['fetch']['static']['uri']
-        destination_file = os.path.join(self._app_config['tmp_directory'], 'gtfsgateway.zip')
+        destination_file = os.path.join(self._app_config['tmp_directory'], 'fetch.zip')
         
         if static_update.startswith('http'):
             urlretrieve(static_update, destination_file)
@@ -79,7 +79,7 @@ class Gateway:
         args = [
             os.path.join(
                 self._app_config['tmp_directory'], 
-                'gtfsgateway.zip'
+                'fetch.zip'
             ),
             '-o',
             self._app_config['tmp_directory']
@@ -88,46 +88,71 @@ class Gateway:
         self._run_external_integration('gtfstidy', args)
 
     def _run_external_integration_gtfsvtor(self):
+        static_feed_filename = os.path.join(
+            self._app_config['app_directory'], 
+            self._app_config['static_feed_filename']
+        )
+
+        report_filename = os.path.basename(static_feed_filename)
+        report_filename = report_filename.replace('.zip', '')
+        report_filename = f"{report_filename}.html"
+        
         args = [
-            os.path.join(self._app_config['data_directory'], 'gtfsgateway.zip'),
+            static_feed_filename,
             '-o',
-            os.path.join(self._app_config['data_directory'], 'gtfsgateway.html')
+            os.path.join(
+                self._app_config['app_directory'], 
+                report_filename
+            )
         ]
         
         self._run_external_integration('gtfsvtor', args)
 
-    def _load_local_sqlite(self):
-        local_database_filename = os.path.join(self._app_config['data_directory'], 'gtfsgateway.db3')
-        local_backup_filename = os.path.join(self._app_config['data_directory'], 'gtfsgateway.bak')
+    def _load_staging_sqlite(self):
+        staging_filename = os.path.join(
+            self._app_config['app_directory'], 
+            self._app_config['staging_filename']
+        )
+
+        staging_backup_filename = os.path.join(
+            self._app_config['app_directory'],
+            self._app_config['staging_backup_filename']
+        )
 
         # need to close the local database temporary in order to create backup file
-        if os.path.isfile(local_database_filename):   
-            self._local_database.close()
+        if os.path.isfile(staging_filename):   
+            self.staging_database.close()
             
-            os.rename(local_database_filename, local_backup_filename)
+            # remove existing backup in order to create a new one
+            if os.path.isfile(staging_backup_filename):
+                os.remove(staging_backup_filename)
 
-            self._local_database = StaticDatabase(local_database_filename)
+            os.rename(staging_filename, staging_backup_filename)
+
+            self.staging_database = StaticDatabase(staging_filename)
 
         # import all existing GTFS files
-        self._local_database.import_csv_files(self._app_config['tmp_directory'])
-
+        self.staging_database.import_csv_files(self._app_config['tmp_directory'])
         clear_directory(self._app_config['tmp_directory'])
-
-        # remove backup since import worked properly
-        if os.path.isfile(local_backup_filename):
-            os.remove(local_backup_filename)
 
     def _create_route_index(self):
         gateway_config_processing_routes = self._gateway_config['processing']['routes']
-        gateway_config_processing_routes = list()
 
-        routes = self._local_database.get_route_base_info()
-        for route in routes:
-            gateway_config_processing_routes.append({
-                'name': route[1],
-                'id': route[0],
-                'published': False
-            })
+        route_base_data = self.staging_database.get_route_base_info()
+        for route in route_base_data:
+            if not any(r['name'] == route['route_short_name'] for r in gateway_config_processing_routes):
+                gateway_config_processing_routes.append(
+                    dict(
+                        name = route[1],
+                        id = route[0],
+                        include = False
+                    )
+                )
+                
+        for i in range(0, len(gateway_config_processing_routes)):
+            route = gateway_config_processing_routes[i]
+            if not any(r['route_short_name'] == route['name'] for r in route_base_data):
+                del gateway_config_processing_routes[i]
 
         self._gateway_config['processing']['routes'] = gateway_config_processing_routes
 
@@ -138,15 +163,21 @@ class Gateway:
                 default_flow_style=False
             )
 
-    def _create_processing_database(self):
-        processing_database_filename = os.path.join(self._app_config['tmp_directory'], 'gtfsgateway.db3')
+    def _create_static_database(self):
+        static_filename = os.path.join(
+            self._app_config['app_directory'], 
+            self._app_config['static_filename']
+        )
         
         copy_file(
-            os.path.join(self._app_config['data_directory'], 'gtfsgateway.db3'),
-            processing_database_filename
+            os.path.join(
+                self._app_config['app_directory'], 
+                self._app_config['staging_filename']
+            ),
+            static_filename
         )
 
-        self._processing_database = StaticDatabase(processing_database_filename)
+        self.static_database = StaticDatabase(static_filename)
 
     def _load_processing_datafile(self, filename, columns, delimiter=';', quotechar='*'):
         results = list()
@@ -164,28 +195,35 @@ class Gateway:
     
     def _run_processing_functions(self):
         for function in self._app_config['processing']['functions']:
-            module = importlib.import_module(f".processing.{function}", 'gtfsgateway')
-            call = getattr(module, function)
-            
-            call(self)
+            try:
+                module = importlib.import_module(f".processing.{function}", 'gtfsgateway')
+                call = getattr(module, function)
+
+                call(self)
+            except Exception as ex:
+                pass
 
     def _export_processing_sqlite(self):
-        if self._processing_database is not None:
-            self._processing_database.export_csv_files(self._app_config['tmp_directory'])
-            self._processing_database.close()
-
-            os.remove(
-                os.path.join(self._app_config['tmp_directory'], 'gtfsgateway.db3')
-            )
+        if self.static_database is not None:
+            self.static_database.export_csv_files(self._app_config['tmp_directory'])
+            self.static_database.close()
 
             create_zip_file(
                 self._app_config['tmp_directory'],
-                os.path.join(self._app_config['data_directory'], 'gtfsgateway.zip')
+                os.path.join(
+                    self._app_config['app_directory'], 
+                    self._app_config['static_feed_filename']
+                )
             )
 
             clear_directory(self._app_config['tmp_directory'])
 
     def _publish_static_feed(self):
+        source_filename = os.path.join(
+            self._app_config['app_directory'], 
+            self._app_config['static_feed_filename']
+        )
+        
         if 'ftp' in self._gateway_config['publish']['static']:
             ftp = ftplib.FTP()
 
@@ -199,7 +237,6 @@ class Gateway:
                 self._gateway_config['publish']['static']['ftp']['password']
             )
             
-            source_filename = os.path.join(self._app_config['data_directory'], 'gtfsgateway.zip')
             with open(source_filename, 'rb') as source_file:
                 ftp.storbinary(
                     f"STOR {self._gateway_config['publish']['static']['ftp']['directory']}/{self._gateway_config['publish']['static']['ftp']['filename']}", 
@@ -209,11 +246,6 @@ class Gateway:
             ftp.quit()
 
         elif 'filesystem' in self._gateway_config['publish']['static']:
-            source_filename = os.path.join(
-                self._app_config['data_directory'],
-                'gtfsgateway.zip'
-            )
-
             destination_filename = os.path.join(
                 self._gateway_config['publish']['static']['filesystem']['directory'],
                 self._gateway_config['publish']['static']['filesystem']['filename']
@@ -228,12 +260,11 @@ class Gateway:
             try:
                 self._fetch_static_feed()
                 self._run_external_integration_gtfstidy()
-                self._load_local_sqlite()
+                self._load_staging_sqlite()
                 self._create_route_index()
 
                 self._release_data_lock()
-
-                self._local_database.close()
+                self.staging_database.close()
 
                 return True
             except Exception as ex:
@@ -244,13 +275,13 @@ class Gateway:
     def process(self, **args):
         if self._create_data_lock():
             try:
-                self._create_processing_database()
+                self._create_static_database()
                 self._run_processing_functions()
                 self._export_processing_sqlite()
                 self._run_external_integration_gtfsvtor()
 
                 self._release_data_lock()
-                self._processing_database.close()
+                self.static_database.close()
 
                 return True
             except Exception as ex:

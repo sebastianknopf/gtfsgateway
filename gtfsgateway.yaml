@@ -19,10 +19,10 @@ processing:
     routes:
     - id: 'route-101'
       name: '101'
-      published: true
+      include: true
     - id: 'route-102'
       name: '102'
-      published: false
+      include: false
 
 publish:
     static:

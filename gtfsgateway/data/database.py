@@ -6,6 +6,7 @@ class StaticDatabase:
 
     def __init__(self, local_sqlite_file):
         self._connection = sqlite3.connect(local_sqlite_file)
+        self._connection.row_factory = sqlite3.Row
 
     def _get_col_datatypes(self, csv_file):
         dr = csv.DictReader(csv_file)
@@ -100,9 +101,6 @@ class StaticDatabase:
 
                 for row in results:
                     csv_writer.writerow(row)
-
-    def get_connection(self):
-        return self._connection
 
     def get_route_base_info(self):
         cursor = self._connection.cursor()

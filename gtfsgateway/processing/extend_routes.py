@@ -1,5 +1,5 @@
 def extend_routes(gateway):
-    cursor = gateway._processing_database._connection.cursor()
+    cursor = gateway.static_database._connection.cursor()
 
     try:
         cursor.execute("ALTER TABLE routes ADD COLUMN route_color TEXT NOT NULL DEFAULT '4285F4'")
