@@ -140,7 +140,7 @@ class Gateway:
 
         route_base_data = self.staging_database.get_route_base_info()
         for route in route_base_data:
-            if not any(r['name'] == route['route_short_name'] for r in gateway_config_processing_routes):
+            if not any(r['name'] == route['route_short_name'] and r['id'] == route['route_id'] for r in gateway_config_processing_routes):
                 gateway_config_processing_routes.append(
                     dict(
                         name = route[1],
