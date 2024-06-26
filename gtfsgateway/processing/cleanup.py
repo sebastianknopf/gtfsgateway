@@ -12,6 +12,10 @@ def cleanup(gateway):
     cursor.execute("DELETE FROM transfers WHERE from_stop_id NOT IN (SELECT stop_id FROM stops)")
     cursor.execute("DELETE FROM transfers WHERE to_stop_id NOT IN (SELECT stop_id FROM stops)")
 
+    cursor.close()
+    gateway.static_database._connection.commit()
+
+    cursor = gateway.static_database._connection.cursor()
     cursor.execute("VACUUM")
 
-    cursor.close()
+    
