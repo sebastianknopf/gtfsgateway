@@ -1,7 +1,10 @@
 import datetime
 
-def extend_feed_info(static_database, publisher_name, publisher_url):
-    cursor = static_database.get_connection().cursor()
+def extend_feed_info(gateway):
+    cursor = gateway._processing_database._connection.cursor()
+
+    publisher_name = gateway._gateway_config['processing']['extend_feed_info']['publisher_name']
+    publisher_url = gateway._gateway_config['processing']['extend_feed_info']['publisher_url']         
 
     cursor.execute(
         "UPDATE feed_info SET feed_publisher_name = ?, feed_publisher_url = ?, feed_version = ?",

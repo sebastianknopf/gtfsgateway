@@ -166,24 +166,8 @@ class Gateway:
         for function in self._app_config['processing']['functions']:
             module = importlib.import_module(f".processing.{function}", 'gtfsgateway')
             call = getattr(module, function)
-
-            if function == 'remove_routes':
-                route_ids = [route['id'] for route in self._gateway_config['processing']['routes'] if route['published'] == False]
-                call(self._processing_database, route_ids)
-            elif function == 'extend_feed_info':
-                publisher_name = self._gateway_config['processing']['extend_feed_info']['publisher_name']
-                publisher_url = self._gateway_config['processing']['extend_feed_info']['publisher_url']
-                call(self._processing_database, publisher_name, publisher_url)
-            elif function == 'extend_routes':
-                df_filename = self._gateway_config['processing']['extend_routes']['datafile']['filename']
-                df_columns = self._gateway_config['processing']['extend_routes']['datafile']['columns']
-                df_delimiter = self._gateway_config['processing']['extend_routes']['datafile']['delimiter']
-                df_quotechar = self._gateway_config['processing']['extend_routes']['datafile']['quotechar']
-
-                df_content = self._load_processing_datafile(df_filename, df_columns, df_delimiter, df_quotechar)
-                call(self._processing_database, df_content)
-            else:
-                call(self._processing_database)
+            
+            call(self)
 
     def _export_processing_sqlite(self):
         if self._processing_database is not None:
