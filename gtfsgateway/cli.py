@@ -1,22 +1,20 @@
-from argparse import ArgumentParser
+import click
 
 from .config import app as app_config
 from .gateway import Gateway
 
-def main():
-    parser = ArgumentParser(prog='cli')
-    parser.add_argument('command', help='The command to be run by GTFS gateway')
-    parser.add_argument('gatewayconfig', nargs='?', default='gtfsgateway.yaml', help='The yaml file with GTFS gateway configuration')
-    args = parser.parse_args()
-    
-    gateway = Gateway(app_config, args.gatewayconfig)
+@click.command()
+@click.argument('command')
+@click.option('--gatewayconfig', '-g', default='gtfsgateway.yaml', help='The yaml file with the GTFS gateway configuration')
+def main(command, gatewayconfig):
+    gateway = Gateway(app_config, gatewayconfig)
 
-    if args.command == 'fetch':
+    if command == 'fetch':
         gateway.fetch()
-    elif args.command == 'process':
+    elif command == 'process':
         gateway.process()
-    elif args.command == 'publish':
+    elif command == 'publish':
         gateway.publish()
-    elif args.command == 'reset':
+    elif command == 'reset':
         gateway.reset()
 
