@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>{{ title }} ({{ distribution }})</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/w3.min.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/fontawesome-4.7.0.min.css')}}">
+    </head>
+    <body class="w3-light-grey">
+
+        <!-- top bar -->
+        <div class="w3-bar w3-top w3-green w3-large" style="z-index:4">
+            <button class="w3-bar-item w3-button w3-hide-large w3-hover-none w3-hover-text-light-grey" onclick="w3_open();"><i class="fa fa-bars"></i>  Menu</button>
+            <span class="w3-bar-item w3-left"><b>GTFS</b> <i>gateway</i></span>
+        </div>
+
+        <!-- sidebar / menu -->
+        <nav class="w3-sidebar w3-collapse w3-white w3-animate-left" style="z-index:3;width:270px;" id="ui_sidebar">
+            <br>
+            <div class="w3-container">
+                <h5>Soll-Fahrplan</h5>
+            </div>
+            <div class="w3-bar-block">
+                <a href="{{ url_for('fetch') }}" class="w3-bar-item w3-button w3-padding{% if url_for(request.endpoint) == '/fetch' %} w3-blue{% endif %}">
+                    <i class="fa fa-refresh fa-fw"></i> Update
+                </a>
+                <a href="{{ url_for('process') }}" class="w3-bar-item w3-button w3-padding{% if url_for(request.endpoint) == '/process' %} w3-blue{% endif %}">
+                    <i class="fa fa-cogs fa-fw"></i> Aufbereitung
+                </a>
+                <a href="{{ url_for('publish') }}" class="w3-bar-item w3-button w3-padding{% if url_for(request.endpoint) == '/publish' %} w3-blue{% endif %}">
+                    <i class="fa fa-upload fa-fw"></i> Veröffentlichung
+                </a>
+            </div>
+            <div class="w3-container">
+                <h5>System</h5>
+            </div>
+            <div class="w3-bar-block">
+                <a href="{{ url_for('publish') }}" class="w3-bar-item w3-button w3-padding{% if url_for(request.endpoint) == '/publish' %} w3-blue{% endif %}">
+                    <i class="fa fa-heartbeat fa-fw"></i> Status
+                </a>
+                <a href="{{ url_for('publish') }}" class="w3-bar-item w3-button w3-padding{% if url_for(request.endpoint) == '/publish' %} w3-blue{% endif %}">
+                    <i class="fa fa-wrench fa-fw"></i> Einstellungen
+                </a>
+            </div>
+        </nav>
+
+
+        <!-- overlay effect when opening sidebar on small screens -->
+        <div class="w3-overlay w3-hide-large w3-animate-opacity" onclick="w3_close()" style="cursor:pointer" title="close side menu" id="ui_overlay"></div>
+
+        <!-- PAGE CONTENT -->
+        <div class="w3-main" style="margin-left:270px;margin-top:43px;">
+
+            {% block content %}
+            {% endblock %}
+            
+
+            <!-- footer -->
+            <footer class="w3-container w3-padding-16 w3-light-grey">
+                <p>{{ url_for(request.endpoint) }} - powered by <a href="https://www.w3schools.com/w3css/default.asp" target="_blank">w3.css</a></p>
+            </footer>
+        </div>
+
+        <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    </body>
+</html>
