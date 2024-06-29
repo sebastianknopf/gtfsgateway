@@ -1,22 +1,38 @@
 fetch:
     static:
-        uri: 'https://url.to/your/gtfs/feed.zip'
+        remote:
+            url: https://url.to/your/gtfs/feed.zip
+            active: true
+        filesystem:
+            filename:
+            active: false
 
 processing:
-    extend_feed_info:
-        publisher_name: 'Demo Company'
-        publisher_url: 'https://www.demo.com'
-    extend_routes:
+    functions:
+    - name: remove_inactive_routes
+        active: true
+    - name: remove_shapes
+        active: true
+    - name: extend_feed_info
+        active: true
+        params:
+        publisher_name: Your Name
+        publisher_url: https://www.your-name.com
+    - name: extend_routes
+        active: true
+        params:
         datafile:
-            filename: 'routedata.csv'
-            delimiter: ';'
-            quotechar: '"'
             columns:
-                route_short_name: 'Linie'
-                route_color: 'Farbe'
-                route_text_color: 'Textfarbe'
-                route_long_name: 'Beschreibung'
-    routes:
+            route_color: Farbe
+            route_long_name: Beschreibung
+            route_short_name: Linie
+            route_text_color: Textfarbe
+            delimiter: ;
+            filename: routedata.csv
+            quotechar: '"'
+    - name: cleanup
+        active: true
+    route_index:
     - id: 'route-101'
       name: '101'
       include: true
@@ -27,12 +43,16 @@ processing:
 publish:
     static:
         ftp:
+            active: true
             host: '127.0.0.1'
             port: 22
             username: demo
             password: password
             directory: '/'
             filename: 'gtfs.zip'
+        filesystem:
+            active: false
+            filesystem: 
 
 external:
     integration:

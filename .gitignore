@@ -163,8 +163,9 @@ cython_debug/
 
 # application specific
 
-productive.yaml
+test.yaml
 /data/*
 /tmp/*
 /bin/*
 /app/*
+*.log

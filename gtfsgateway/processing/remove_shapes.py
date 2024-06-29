@@ -1,4 +1,4 @@
-def remove_shapes(gateway):
+def remove_shapes(gateway, params):
     cursor = gateway.static_database._connection.cursor()
 
     cursor.execute("DELETE FROM shapes")

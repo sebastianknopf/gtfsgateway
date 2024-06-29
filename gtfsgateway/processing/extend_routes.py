@@ -1,4 +1,4 @@
-def extend_routes(gateway):
+def extend_routes(gateway, params):
     cursor = gateway.static_database._connection.cursor()
 
     try:
@@ -11,10 +11,10 @@ def extend_routes(gateway):
     except Exception as ex:
         pass
 
-    df_filename = gateway._gateway_config['processing']['extend_routes']['datafile']['filename']
-    df_columns = gateway._gateway_config['processing']['extend_routes']['datafile']['columns']
-    df_delimiter = gateway._gateway_config['processing']['extend_routes']['datafile']['delimiter']
-    df_quotechar = gateway._gateway_config['processing']['extend_routes']['datafile']['quotechar']
+    df_filename = params['datafile']['filename']
+    df_columns = params['datafile']['columns']
+    df_delimiter = params['datafile']['delimiter']
+    df_quotechar = params['datafile']['quotechar']
 
     df_content = gateway._load_processing_datafile(df_filename, df_columns, df_delimiter, df_quotechar)
     for rd in df_content:

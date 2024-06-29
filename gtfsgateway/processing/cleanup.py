@@ -1,4 +1,4 @@
-def cleanup(gateway):
+def cleanup(gateway, params):
     cursor = gateway.static_database._connection.cursor()
 
     cursor.execute("DELETE FROM trips WHERE route_id NOT IN (SELECT route_id FROM routes)")
