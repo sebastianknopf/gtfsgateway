@@ -26,7 +26,6 @@ processing:
             route_color: Farbe
             route_long_name: Beschreibung
             route_short_name: Linie
-            route_text_color: Textfarbe
             delimiter: ;
             filename: routedata.csv
             quotechar: '"'
