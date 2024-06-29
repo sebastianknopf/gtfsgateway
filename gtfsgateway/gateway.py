@@ -238,7 +238,7 @@ class Gateway:
                     else:
                         call(self, dict())
             except Exception as ex:
-                logging.error(f"error executing function {function}")
+                logging.error(f"error executing function {function['name']}")
                 logging.exception(ex)
 
     def _export_static_database(self):
