@@ -2,7 +2,7 @@ from flask import Flask
 from flask import render_template
 from flask import redirect
 
-from .config import config as webclient_config
+from .config import webclient as webclient_config
 
 from gtfsgateway.config import app as app_config
 from gtfsgateway.gateway import Gateway
