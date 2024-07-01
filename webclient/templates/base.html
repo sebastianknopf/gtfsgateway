@@ -36,10 +36,10 @@
                 <h5>System</h5>
             </div>
             <div class="w3-bar-block">
-                <a href="{{ url_for('publish') }}" class="w3-bar-item w3-button w3-padding{% if url_for(request.endpoint) == '/publish' %} w3-blue{% endif %}">
+                <a href="{{ url_for('status') }}" class="w3-bar-item w3-button w3-padding{% if url_for(request.endpoint) == '/status' %} w3-blue{% endif %}">
                     <i class="fa fa-heartbeat fa-fw"></i> Status
                 </a>
-                <a href="{{ url_for('publish') }}" class="w3-bar-item w3-button w3-padding{% if url_for(request.endpoint) == '/publish' %} w3-blue{% endif %}">
+                <a href="{{ url_for('config') }}" class="w3-bar-item w3-button w3-padding{% if url_for(request.endpoint) == '/config' %} w3-blue{% endif %}">
                     <i class="fa fa-wrench fa-fw"></i> Einstellungen
                 </a>
             </div>

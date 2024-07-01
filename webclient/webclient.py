@@ -25,6 +25,12 @@ class Webclient:
 
     def publish(self):
         return self._render_template('index.html')
+        
+    def status(self):
+        return self._render_template('index.html')
+        
+    def config(self):
+        return self._render_template('index.html')
     
     def ajaxcall(self):
         pass
@@ -34,6 +40,9 @@ class Webclient:
         self._app.add_url_rule('/fetch', 'fetch', self.fetch)
         self._app.add_url_rule('/process', 'process', self.process)
         self._app.add_url_rule('/publish', 'publish', self.publish)
+        
+        self._app.add_url_rule('/status', 'status', self.status)
+        self._app.add_url_rule('/config', 'config', self.config)
 
         self._app.add_url_rule('/ajaxcall/<function>', 'ajaxcall', self.ajaxcall)
 
