@@ -33,6 +33,12 @@ class Webclient:
 
     def publish(self):
         return self._render_template('publish.html')
+        
+    def status(self):
+        return self._render_template('index.html')
+        
+    def config(self):
+        return self._render_template('index.html')
     
     def ajaxcall(self, group, function):
         call_name = f"_{group}_{function}"
