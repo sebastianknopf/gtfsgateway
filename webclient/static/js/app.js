@@ -21,6 +21,78 @@ function w3_close() {
     overlay.classList.add('w3-hide');
 }
 
+// converter for FormData to JSON
+function form2json(form, submitterName) {
+    let formData = new FormData(form);
+    formData.append('action', submitterName);
+
+    let formDataEntries = formData.entries();
+    const handleChild = function (obj, keysArr, value) {
+        let firstK = keysArr.shift();
+        firstK = firstK.replace(']','');
+        if (keysArr.length == 0){
+            if (firstK == '') {
+                if (!Array.isArray(obj)) obj = [];
+                obj.push(value);
+            } else {
+                obj[firstK] = value; 
+            }
+        } else {
+            if (firstK=='') {
+                obj.push(value); 
+            } else {
+                if (!(firstK in obj)) {
+                    obj[firstK]={};
+                } 
+
+                obj[firstK] = handleChild(obj[firstK], keysArr, value);
+            }
+        }
+
+        return obj;
+    };
+
+    let result = {};
+    for (const [key, value]  of formDataEntries ) {
+        result= handleChild(result, key.split(/\[/), value);
+    }
+         
+    return result;
+}
+
+// generic ajaxcall function 
+function ajaxcall(endpoint, data) {
+    fetch(endpoint, {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    }).then(function (response) {
+        return response.json();
+    }).then(function (result) {
+        console.log(result);
+    });
+}
+
+// prevent all forms from being submitted and handle them as ajax call instead
+var formObjects = document.getElementsByTagName('form');
+for (var i = 0; i < formObjects.length; i++) {
+    var formObject = formObjects[i];
+    formObject.addEventListener('submit', function (event) {
+        event.preventDefault();
+
+        formSubmitterName = event.submitter ? event.submitter.getAttribute('subcommand-name') : 'Unknown';
+        formJsonData = form2json(formObject, formSubmitterName);
+
+        ajaxcall(
+            formObject.getAttribute('action'),
+            formJsonData
+        );
+    });
+}
+
 // functionality for form selectors
 var formSelectors = document.getElementsByClassName("w3-form-selector");
 for (var i = 0; i < formSelectors.length; i++) {
@@ -29,8 +101,6 @@ for (var i = 0; i < formSelectors.length; i++) {
             var formSelectables = document.getElementsByClassName("w3-form-selectable");
             for (let i = 0; i < formSelectables.length; i++) {
                 formSelectables.item(i).classList.add('w3-hide');
-
-                console.log('found selectable');
             }
             
             var selector = this.getAttribute("data-selector");
