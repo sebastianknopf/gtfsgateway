@@ -34,8 +34,10 @@ class Webclient:
     def publish(self):
         return self._render_template('publish.html')
     
-    def ajaxcall(self):
-        pass
+    def ajaxcall(self, group, function):
+        call_name = f"_{group}_{function}"
+        
+        return group + " " + function
 
     def run(self, **args):
         self._app.add_url_rule('/', 'index', self.index)
@@ -43,7 +45,7 @@ class Webclient:
         self._app.add_url_rule('/process', 'process', self.process)
         self._app.add_url_rule('/publish', 'publish', self.publish)
 
-        self._app.add_url_rule('/ajaxcall/<function>', 'ajaxcall', self.ajaxcall)
+        self._app.add_url_rule('/ajaxcall/<group>/<function>', 'ajaxcall', self.ajaxcall)
 
         self._app.jinja_env.auto_reload = True
         self._app.config['TEMPLATES_AUTO_RELOAD'] = True
