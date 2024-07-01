@@ -51,6 +51,9 @@ class Webclient:
         self._app.add_url_rule('/process', 'process', self.process)
         self._app.add_url_rule('/publish', 'publish', self.publish)
 
+        self._app.add_url_rule('/status', 'status', self.status)
+        self._app.add_url_rule('/config', 'config', self.config)
+
         self._app.add_url_rule('/ajaxcall/<group>/<function>', 'ajaxcall', self.ajaxcall)
 
         self._app.jinja_env.auto_reload = True
