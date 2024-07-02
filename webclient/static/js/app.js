@@ -4,14 +4,26 @@ var sidebar = document.getElementById("ui_sidebar");
 // get the DIV with overlay effect
 var overlay = document.getElementById("ui_overlay");
 
+// empty click handler
+function emptyClickHandler(event) {
+	event.preventDefault();
+	event.stopPropagation();
+}
+
 // toggle between showing and hiding the sidebar, and add overlay effect
 function w3_open() {
-    if (sidebar.style.display == 'none') {
-        sidebar.classList.add('w3-show').remove('w3-hide');
-        overlay.classList.add('w3-show').remove('w3-hide');
+    if (sidebar.classList.contains('w3-hide-medium')) {
+        sidebar.classList.add('w3-show');
+		sidebar.classList.remove('w3-hide-medium');
+		
+        overlay.classList.add('w3-show')
+		overlay.classList.remove('w3-hide');
     } else {
-        sidebar.classList.add('w3-hide').remove('w3-show');
-        overlay.classList.add('w3-hide').remove('w3-show');
+        sidebar.classList.add('w3-hide-medium');
+		sidebar.classList.remove('w3-show');
+		
+        overlay.classList.add('w3-hide');
+		overlay.classList.remove('w3-show');
     }
 }
 
@@ -19,6 +31,73 @@ function w3_open() {
 function w3_close() {
     sidebar.classList.add('w3-hide');
     overlay.classList.add('w3-hide');
+}
+
+// show modal with text
+function w3_modal(level, title, message) {
+	let modal = document.getElementById('ui_modal');
+	let modalHeader = modal.querySelector('header');
+	let modalTitle = document.getElementById('ui_modal_title');
+	let modalMessage = document.getElementById('ui_modal_message');
+	
+	modalTitle.innerHTML = title;
+	modalMessage.innerHTML = message;
+	
+	modalHeader.classList.remove('w3-pale-red');
+	modalHeader.classList.remove('w3-pale-yellow');
+	modalHeader.classList.remove('w3-pale-green');
+	
+	if (level == 'error') {
+		modalHeader.classList.add('w3-pale-red');
+	} else if (level == 'warning') {
+		modalHeader.classList.add('w3-pale-yellow');
+	} else if (level == 'success') {
+		modalHeader.classList.add('w3-pale-green');
+	} else {
+		//modalHeader.classList.add('w3-pale-red');
+	}
+	
+	modal.classList.add('w3-show');
+}
+
+function w3_lock() {
+	let lockableElements = document.getElementsByClassName('w3-lockable');
+	for (let i = 0; i < lockableElements.length; i++) {
+		let lockableElement = lockableElements[i];
+		
+		lockableElement.classList.add('w3-locked');
+		lockableElement.setAttribute('disabled', 'disabled');
+		lockableElement.addEventListener('click', emptyClickHandler);
+	}
+	
+	let loadingElements = document.getElementsByClassName('w3-loading');
+	for (let i = 0; i < loadingElements.length; i++) {
+		let loadingElement = loadingElements[i];
+		loadingElement.classList.remove('w3-hide');
+	}
+	
+	window.onbeforeunload = function() {
+		return true;
+	};
+}
+
+function w3_unlock() {
+	let lockableElements = document.getElementsByClassName('w3-lockable');
+	for (let i = 0; i < lockableElements.length; i++) {
+		let lockableElement = lockableElements[i];
+		
+		lockableElement.classList.remove('w3-locked');
+		lockableElement.removeAttribute('disabled');
+		lockableElement.removeEventListener('click', emptyClickHandler);
+	}
+	
+	let loadingElements = document.getElementsByClassName('w3-loading');
+	for (let i = 0; i < loadingElements.length; i++) {
+		let loadingElement = loadingElements[i];
+		loadingElement.classList.add('w3-hide');
+	}
+	
+	window.onbeforeunload = null;
 }
 
 // converter for FormData to JSON
@@ -36,7 +115,7 @@ function form2json(form) {
                 obj[firstK] = value; 
             }
         } else {
-            if (firstK=='') {
+            if (firstK == '') {
                 obj.push(value); 
             } else {
                 if (!(firstK in obj)) {
@@ -60,6 +139,8 @@ function form2json(form) {
 
 // generic ajaxcall function 
 function ajaxcall(endpoint, data) {
+	w3_lock();
+	
     fetch(endpoint, {
         method: 'POST',
         headers: {
@@ -68,9 +149,17 @@ function ajaxcall(endpoint, data) {
         },
         body: JSON.stringify(data)
     }).then(function (response) {
-        return response.json();
+		if (response.ok) {
+			return response.json();
+		} else {
+			w3_modal('error', 'Fehler beim Ausführen der Aktion!', 'Beim Ausführen der Funktion im WebClient ist ein Fehler aufgetreten.');
+		}
     }).then(function (result) {
-        console.log(result);
+		if (result.code != 0) {
+			w3_modal('error', 'Fehler beim Ausführen der Aktion!', result.message + ' (Fehlercode: ' + result.code + ')');
+		}
+		
+		w3_unlock();
     });
 }
 
