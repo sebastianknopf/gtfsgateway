@@ -1,4 +1,6 @@
+import click
 import time
+import logging
 
 from flask import Flask
 from flask import render_template
@@ -15,8 +17,8 @@ from gtfsgateway.gateway import Gateway
 
 class Webclient:
 
-    def __init__(self):
-        self._gateway = Gateway(app_config, 'test.yaml')
+    def __init__(self, appconfig, gatewayconfig):
+        self._gateway = Gateway(app_config, gatewayconfig)
         self._app = Flask(__name__)
 
     def _render_template(self, template_name, **args):
@@ -27,18 +29,46 @@ class Webclient:
         )
 
         return render_template(template_name, **ui_args)
-    
-    @apiresponse
-    def _test_function(self, **args):
-        time.sleep(2)
-        return {
-            'code': 202,
-            'message': 'OK', 
-            'data': request.json
-        }
+        
+    def _intersect_gateway_config(self, gateway_config, data):    
+        for k, v in data.items():
+            if isinstance(v, dict):
+                gateway_config[k] = self._intersect_gateway_config(gateway_config[k], v)
+            else:
+                if k in gateway_config:
+                    gateway_config[k] = data[k]
+                
+        return gateway_config
+                
+    def _update_gateway_config(self, gateway_config_data):        
+        gateway_config = self._gateway._gateway_config
+        gateway_config = self._intersect_gateway_config(
+            gateway_config, 
+            gateway_config_data['data']
+        )
+        
+        self._gateway._update_gateway_config(gateway_config)
 
     @apiresponse
     def _static_fetch(self, **args):
+        request_data = request.json
+        self._update_gateway_config(request_data)
+        
+        result = self._gateway.fetch()
+        
+        if result:
+            return {
+                'code': 200,
+                'message': 'OK'
+            }
+        else: 
+            return {
+                'code': 500,
+                'message': 'FAIL'
+            }
+        
+    @apiresponse
+    def _static_rollback(self, **args):
         pass
 
     @apiresponse
@@ -90,6 +120,15 @@ class Webclient:
 
         self._app.run(**args)
 
-def main():
-    webclient = Webclient()
+@click.command()
+@click.option('--gatewayconfig', '-g', default='gtfsgateway.yaml', help='The yaml file with the GTFS gateway configuration')
+@click.option('--logfile', '-l', default=None, help='The log filename where GTFS gateway should write logs to')
+def main(gatewayconfig, logfile):
+    
+    if logfile is not None:
+        logging.basicConfig(format='%(asctime)s %(levelname)s: %(message)s', filename=logfile, level=logging.INFO)
+    else:
+        logging.basicConfig(format='%(levelname)s: %(message)s', level=logging.INFO)
+    
+    webclient = Webclient(app_config, gatewayconfig)
     webclient.run()

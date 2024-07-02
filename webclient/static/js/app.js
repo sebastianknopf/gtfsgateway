@@ -22,10 +22,8 @@ function w3_close() {
 }
 
 // converter for FormData to JSON
-function form2json(form, submitterName) {
+function form2json(form) {
     let formData = new FormData(form);
-    formData.append('action', submitterName);
-
     let formDataEntries = formData.entries();
     const handleChild = function (obj, keysArr, value) {
         let firstK = keysArr.shift();
@@ -83,13 +81,15 @@ for (var i = 0; i < formObjects.length; i++) {
     formObject.addEventListener('submit', function (event) {
         event.preventDefault();
 
-        formSubmitterName = event.submitter ? event.submitter.getAttribute('subcommand-name') : 'Unknown';
-        formJsonData = form2json(formObject, formSubmitterName);
+		formSubmitter = event.submitter ? event.submitter : null;
+		if (formSubmitter != null) {
+			formJsonData = form2json(formObject);
 
-        ajaxcall(
-            formObject.getAttribute('action'),
-            formJsonData
-        );
+			ajaxcall(
+				formSubmitter.getAttribute('ajaxcall'),
+				formJsonData
+			);
+		}
     });
 }
 

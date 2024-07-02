@@ -5,7 +5,7 @@ import sqlite3
 class StaticDatabase:
 
     def __init__(self, local_sqlite_file):
-        self._connection = sqlite3.connect(local_sqlite_file)
+        self._connection = sqlite3.connect(local_sqlite_file, check_same_thread=False)
         self._connection.row_factory = sqlite3.Row
 
     def _get_col_datatypes(self, csv_file):

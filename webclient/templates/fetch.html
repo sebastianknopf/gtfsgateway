@@ -4,34 +4,34 @@
 <header class="w3-container" style="padding-top:22px">
     <h5><b><i class="fa fa-refresh"></i> Datenupdate</b></h5>
 </header>
-<form action="{{ url_for('ajaxcall', group='test', function='function') }}">
+<form>
     <div class="w3-container w3-padding-16">
         {% if 'remote' in fetch['static'] %}
-        <input class="w3-radio w3-form-selector" type="radio" id="fetch_remote" name="data[fetch][static][source]" value="remote" data-selector="fetch-remote"{% if fetch['static']['remote']['active'] %} checked="checked"{% endif %} />
+        <input class="w3-radio w3-form-selector" type="radio" id="fetch_remote" name="data[fetch][static][source]" value="remote" data-selector="fetch-remote"{% if fetch['static']['source'] == 'remote' %} checked="checked"{% endif %} />
         <label for="fetch_remote">Remote</label>
         {% endif %}
         {% if 'filesystem' in fetch['static'] %}
-        <input class="w3-radio w3-form-selector" type="radio" id="fetch_filesystem" name="data[fetch][static][source]" value="filesystem" data-selector="fetch-filesystem"{% if fetch['static']['filesystem']['active'] %} checked="checked"{% endif %} />
+        <input class="w3-radio w3-form-selector" type="radio" id="fetch_filesystem" name="data[fetch][static][source]" value="filesystem" data-selector="fetch-filesystem"{% if fetch['static']['source'] == 'filesystem' %} checked="checked"{% endif %} />
         <label for="fetch_filesystem">Dateisystem</label>
         {% endif %}
     </div>
     {% if 'remote' in fetch['static'] %}
-    <div class="w3-container w3-form-selectable{% if not fetch['static']['remote']['active'] %} w3-hide{% endif %} w3-padding-16" id="fetch-remote">
+    <div class="w3-container w3-form-selectable{% if not fetch['static']['source'] == 'remote' %} w3-hide{% endif %} w3-padding-16" id="fetch-remote">
         <label for="remote_url">URL</label>
         <input type="text" class="w3-input w3-border" value="{{ fetch['static']['remote']['url'] }}" name="data[fetch][static][remote][url]" id="remote_url" />
     </div>
     {% endif %}
     {% if 'filesystem' in fetch['static'] %}
-    <div class="w3-container w3-form-selectable{% if not fetch['static']['filesystem']['active'] %} w3-hide{% endif %} w3-padding-16" id="fetch-filesystem">
+    <div class="w3-container w3-form-selectable{% if not fetch['static']['source'] == 'filesystem' %} w3-hide{% endif %} w3-padding-16" id="fetch-filesystem">
         <label for="filesystem_filename">Dateipfad</label>
         <input type="text" class="w3-input w3-border" value="{{ fetch['static']['filesystem']['filename'] }}" name="data[fetch][static][filesystem][filename]" id="filesystem_filename" />
     </div>
     {% endif %}
     <div class="w3-container w3-padding-16">
-        <button class="w3-button w3-mobile w3-theme" subcommand-name="fetch" type="submit">
+        <button class="w3-button w3-mobile w3-theme" ajaxcall="{{ url_for('ajaxcall', group='static', function='fetch') }}" type="submit">
             <i class="fa fa-refresh"></i> Datenupdate durchführen
         </button>
-        <button class="w3-button w3-mobile w3-amber" subcommand-name="rollback" type="submit">
+        <button class="w3-button w3-mobile w3-amber" ajaxcall="{{ url_for('ajaxcall', group='static', function='rollback') }}" type="submit">
             <i class="fa fa-undo"></i> Vorherige Version wiederherstellen
         </button>
     </div>

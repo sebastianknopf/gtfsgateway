@@ -53,15 +53,27 @@ class Gateway:
     def _has_data_lock(self):
         local_lock_filename = os.path.join(self._app_config['app_directory'], 'gtfsgateway.lock')
         return os.path.isfile(local_lock_filename)
+    
+    def _update_gateway_config(self, gateway_config):
+        self._gateway_config = gateway_config
+    
+        with open(self._gateway_config_filename, 'w') as gateway_config_file:
+            yaml.dump(
+                gateway_config,
+                gateway_config_file,
+                default_flow_style=False
+            )
         
     def _fetch_static_feed(self):
         fetch_static_config = self._gateway_config['fetch']['static']
         destination_file = os.path.join(self._app_config['tmp_directory'], 'fetch.zip')
+        
+        fetch_source = fetch_static_config['source']
 
-        if 'remote' in fetch_static_config and fetch_static_config['remote']['active']:
+        if fetch_source == 'remote' and fetch_source in fetch_static_config:
             logging.info('fetching static from remote')
             urlretrieve(fetch_static_config['remote']['url'], destination_file)
-        elif 'filesystem' in fetch_static_config and fetch_static_config['remote']['active']:
+        elif fetch_source == 'filesystem' and fetch_source in fetch_static_config:
             logging.info('fetching static feed from filesystem')
             copy_file(fetch_static_config['filesystem']['filename'], destination_file)            
 
@@ -181,12 +193,7 @@ class Gateway:
 
         self._gateway_config['processing']['route_index'] = gateway_config_processing_routes
 
-        with open(self._gateway_config_filename, 'w') as gateway_config_file:
-            yaml.dump(
-                self._gateway_config,
-                gateway_config_file,
-                default_flow_style=False
-            )
+        self._update_gateway_config(self._gateway_config)
 
     def _create_static_database(self):
         logging.info('creating static database')
