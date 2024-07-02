@@ -55,17 +55,7 @@ class Webclient:
         self._update_gateway_config(request_data)
         
         result = self._gateway.fetch()
-        
-        if result:
-            return {
-                'code': 200,
-                'message': 'OK'
-            }
-        else: 
-            return {
-                'code': 500,
-                'message': 'FAIL'
-            }
+        return (200, 'OK') if result else (500, 'FAIL')
         
     @apiresponse
     def _static_rollback(self, **args):
