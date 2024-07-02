@@ -109,13 +109,28 @@ function form2json(form) {
         firstK = firstK.replace(']','');
         if (keysArr.length == 0){
             if (firstK == '') {
-                if (!Array.isArray(obj)) obj = [];
-                obj.push(value);
+                if (!Array.isArray(obj)) {
+					obj = [];
+				}
+				
+				if (value.toLowerCase() == 'true' || value.toLowerCase() == 'false') {
+					value = value.toLowerCase() === 'true';
+				}
+				
+				obj.push(value);
             } else {
+				if (value.toLowerCase() == 'true' || value.toLowerCase() == 'false') {
+					value = value.toLowerCase() === 'true';
+				}
+				
                 obj[firstK] = value; 
             }
         } else {
             if (firstK == '') {
+				if (value.toLowerCase() == 'true' || value.toLowerCase() == 'false') {
+					value = value.toLowerCase() === 'true';
+				}
+				
                 obj.push(value); 
             } else {
                 if (!(firstK in obj)) {
@@ -154,6 +169,8 @@ function ajaxcall(endpoint, data) {
 		} else {
 			w3_modal('error', 'Fehler beim Ausführen der Aktion!', 'Beim Ausführen der Funktion im WebClient ist ein Fehler aufgetreten.');
 		}
+		
+		w3_unlock();
     }).then(function (result) {
 		if (result.code != 0) {
 			w3_modal('error', 'Fehler beim Ausführen der Aktion!', result.message + ' (Fehlercode: ' + result.code + ')');

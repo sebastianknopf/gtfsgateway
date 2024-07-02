@@ -63,7 +63,21 @@ class Webclient:
 
     @apiresponse
     def _static_process(self, **args):
-        return (404, 'Not Implemented')
+        request_data = request.json
+        
+        gateway_config = self._gateway._gateway_config
+        route_index = gateway_config['processing']['route_index']
+        
+        for route in route_index:
+            route['include'] = False
+        
+        for index, data in request_data['data']['processing']['route_index'].items():
+            route_index[int(index)]['include'] = data['include']
+        
+        self._gateway._update_gateway_config(gateway_config)
+        
+        result = self._gateway.process()
+        return (0, 'OK') if result else (500, 'FAIL')
 
     @apiresponse
     def _static_publish(self, **args):

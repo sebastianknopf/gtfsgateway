@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+<!-- header -->
+<header class="w3-container" style="padding-top:22px">
+    <h5><b><i class="fa fa-cogs"></i> Aufbereitung</b></h5>
+</header>
+<form>
+    <div class="w3-container w3-padding-16">
+		{% for route in processing['route_index'] %}
+		<input class="w3-check w3-lockable" type="checkbox" id="route-{{ route['id'] }}" name="data[processing][route_index][{{ loop.index - 1 }}][include]" value="true"{% if route['include'] %} checked="checked"{% endif %} />
+        <label for="route-{{ route['id'] }}">Linie {{ route['name'] }} ({{ route['id'] }})</label>
+		<br />
+		{% endfor %}
+    </div>
+    <div class="w3-container w3-padding-16">
+        <button class="w3-button w3-mobile w3-theme w3-lockable" ajaxcall="{{ url_for('ajaxcall', group='static', function='process') }}" type="submit">
+            <i class="fa fa-cogs"></i> Daten aufbereiten & validieren
+        </button>
+		<div class="w3-mobile" style="display:inline-block;text-align:center;">
+			<img class="w3-loading w3-hide" src="{{ url_for('static', filename='img/loading.gif') }}" width="40" height="40" style="margin:auto;" />
+		</div>
+    </div>
+</form>
+{% endblock %}

@@ -104,7 +104,7 @@ class StaticDatabase:
 
     def get_route_base_info(self):
         cursor = self._connection.cursor()
-        cursor.execute("SELECT route_id, route_short_name FROM routes;")
+        cursor.execute("SELECT route_id, route_short_name FROM routes ORDER BY route_short_name;")
 
         return cursor.fetchall()
 
