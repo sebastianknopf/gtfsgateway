@@ -61,7 +61,8 @@ class Gateway:
             yaml.dump(
                 gateway_config,
                 gateway_config_file,
-                default_flow_style=False
+                default_flow_style=False,
+                sort_keys=False
             )
         
     def _fetch_static_feed(self):
