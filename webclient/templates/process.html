@@ -14,7 +14,7 @@
 			<div class="w3-col l3 m6 s12">
 				{% if cnt_routes.value < processing['route_index']|length %}
 				{% set route = processing['route_index'][cnt_routes.value] %}
-				<input class="w3-check w3-lockable" type="checkbox" id="route-{{ route['id'] }}" name="data[processing][route_index][{{ loop.index - 1 }}][include]" value="true"{% if route['include'] %} checked="checked"{% endif %} />
+				<input class="w3-check w3-lockable" type="checkbox" id="route-{{ route['id'] }}" name="data[processing][route_index][{{ cnt_routes.value }}][include]" value="true"{% if route['include'] %} checked="checked"{% endif %} />
 				<label for="route-{{ route['id'] }}">Linie {{ route['name'] }} ({{ route['id'] }})</label>
 				{% set cnt_routes.value = cnt_routes.value + 1 %}
 				{% endif %}
