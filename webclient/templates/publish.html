@@ -10,6 +10,10 @@
         <input class="w3-radio w3-form-selector w3-lockable" type="radio" id="publish_ftp" name="data[publish][static][destination]" value="ftp" data-selector="publish-ftp"{% if publish['static']['destination'] == 'ftp' %} checked="checked"{% endif %} />
         <label for="publish_ftp">FTP</label>
         {% endif %}
+		{% if 'sftp' in publish['static'] %}
+        <input class="w3-radio w3-form-selector w3-lockable" type="radio" id="publish_ftp" name="data[publish][static][destination]" value="sftp" data-selector="publish-sftp"{% if publish['static']['destination'] == 'sftp' %} checked="checked"{% endif %} />
+        <label for="publish_ftp">SFTP</label>
+        {% endif %}
         {% if 'filesystem' in publish['static'] %}
         <input class="w3-radio w3-form-selector w3-lockable" type="radio" id="publish_filesystem" name="data[publish][static][destination]" value="filesystem" data-selector="publish-filesystem"{% if publish['static']['destination'] == 'filesystem' %} checked="checked"{% endif %} />
         <label for="publish_filesystem">Dateisystem</label>
@@ -19,16 +23,44 @@
     <div class="w3-container w3-form-selectable{% if not publish['static']['destination'] == 'ftp' %} w3-hide{% endif %} w3-padding-16" id="publish-ftp">
         <label for="ftp_host">Host</label>
         <input type="text" class="w3-input w3-border w3-lockable" value="{{ publish['static']['ftp']['host'] }}" name="data[publish][static][ftp][host]" id="ftp_host" />
+		<label for="ftp_port">Port</label>
+        <input type="text" class="w3-input w3-border w3-lockable" value="{{ publish['static']['ftp']['port'] }}" name="data[publish][static][ftp][port]" id="ftp_port" />
+		<label for="ftp_username">Benutzername</label>
+        <input type="text" class="w3-input w3-border w3-lockable" value="{{ publish['static']['ftp']['username'] }}" name="data[publish][static][ftp][username]" id="ftp_username" />
+		<label for="ftp_password">Passwort</label>
+        <input type="password" class="w3-input w3-border w3-lockable" value="{{ publish['static']['ftp']['password'] }}" name="data[publish][static][ftp][password]" id="ftp_password" />
+		<label for="ftp_directory">Zielpfad</label>
+        <input type="text" class="w3-input w3-border w3-lockable" value="{{ publish['static']['ftp']['directory'] }}" name="data[publish][static][ftp][directory]" id="ftp_directory" />
+		<label for="ftp_filename">Dateiname</label>
+        <input type="text" class="w3-input w3-border w3-lockable" value="{{ publish['static']['ftp']['filename'] }}" name="data[publish][static][ftp][filename]" id="ftp_filename" />
+    </div>
+    {% endif %}
+	{% if 'sftp' in publish['static'] %}
+    <div class="w3-container w3-form-selectable{% if not publish['static']['destination'] == 'sftp' %} w3-hide{% endif %} w3-padding-16" id="publish-sftp">
+        <label for="sftp_host">Host</label>
+        <input type="text" class="w3-input w3-border w3-lockable" value="{{ publish['static']['sftp']['host'] }}" name="data[publish][static][sftp][host]" id="sftp_host" />
+		<label for="sftp_port">Port</label>
+        <input type="text" class="w3-input w3-border w3-lockable" value="{{ publish['static']['sftp']['port'] }}" name="data[publish][static][sftp][port]" id="sftp_port" />
+		<label for="sftp_username">Benutzername</label>
+        <input type="text" class="w3-input w3-border w3-lockable" value="{{ publish['static']['sftp']['username'] }}" name="data[publish][static][sftp][username]" id="sftp_username" />
+		<label for="sftp_password">Passwort</label>
+        <input type="password" class="w3-input w3-border w3-lockable" value="{{ publish['static']['sftp']['password'] }}" name="data[publish][static][sftp][password]" id="sftp_password" />
+		<label for="sftp_directory">Zielpfad</label>
+        <input type="text" class="w3-input w3-border w3-lockable" value="{{ publish['static']['sftp']['directory'] }}" name="data[publish][static][sftp][directory]" id="sftp_directory" />
+		<label for="sftp_filename">Dateiname</label>
+        <input type="text" class="w3-input w3-border w3-lockable" value="{{ publish['static']['sftp']['filename'] }}" name="data[publish][static][sftp][filename]" id="sftp_filename" />
     </div>
     {% endif %}
     {% if 'filesystem' in publish['static'] %}
     <div class="w3-container w3-form-selectable{% if not publish['static']['destination'] == 'filesystem' %} w3-hide{% endif %} w3-padding-16" id="publish-filesystem">
-        <label for="filesystem_filename">Dateipfad</label>
+        <label for="filesystem_directory">Zielpfad</label>
+        <input type="text" class="w3-input w3-border w3-lockable" value="{{ publish['static']['filesystem']['directory'] }}" name="data[publish][static][filesystem][directory]" id="filesystem_directory" />
+		<label for="filesystem_filename">Dateiname</label>
         <input type="text" class="w3-input w3-border w3-lockable" value="{{ publish['static']['filesystem']['filename'] }}" name="data[publish][static][filesystem][filename]" id="filesystem_filename" />
     </div>
     {% endif %}
     <div class="w3-container w3-padding-16">
-        <button class="w3-button w3-mobile w3-theme w3-lockable" ajaxcall="{{ url_for('ajaxcall', group='static', function='fetch') }}" type="submit">
+        <button class="w3-button w3-mobile w3-theme w3-lockable" ajaxcall="{{ url_for('ajaxcall', group='static', function='publish') }}" type="submit">
             <i class="fa fa-upload"></i> Veröffentlichen
         </button>
 		<div class="w3-mobile" style="display:inline-block;text-align:center;">

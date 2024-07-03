@@ -5,6 +5,7 @@ import importlib
 import subprocess
 import ftplib
 import logging
+import psysftp
 
 from urllib.request import urlretrieve
 
@@ -278,9 +279,6 @@ class Gateway:
         
         if publish_destination == 'ftp' and publish_destination in publish_static_config:
             logging.info('publishing static feed to ftp')
-            
-            logging.info(f"using host {publish_static_config['ftp']['host']}")
-            logging.info(f"using port {publish_static_config['ftp']['port']}")
 
             ftp = ftplib.FTP()
 
@@ -288,17 +286,11 @@ class Gateway:
                 publish_static_config['ftp']['host'],
                 int(publish_static_config['ftp']['port'])
             )
-            
-            logging.info(f"using username {publish_static_config['ftp']['username']}")
-            logging.info(f"using password {publish_static_config['ftp']['password']}")
 
             ftp.login(
                 publish_static_config['ftp']['username'],
                 publish_static_config['ftp']['password']
             )
-            
-            logging.info(f"using directory {publish_static_config['ftp']['directory']}")
-            logging.info(f"using filename {publish_static_config['ftp']['filename']}")
             
             with open(source_filename, 'rb') as source_file:
                 ftp.storbinary(
@@ -307,6 +299,23 @@ class Gateway:
                 )
 
             ftp.quit()
+            
+        elif publish_destination == 'sftp' and publish_destination in publish_static_config:
+            logging.info('publishing static feed to sftp')
+            
+            sftp = pysftp.Connection(
+                host=publish_static_config['sftp']['host'],
+                username=publish_static_config['sftp']['username'],
+                password=publish_static_config['sftp']['password'],
+                port=publish_static_config['sftp']['port']
+            )
+            
+            sftp.put(source_filename, os.path.join(
+                publish_static_config['sftp']['directory'],
+                publish_static_config['sftp']['filename']
+            ))
+            
+            sftp.close()
 
         elif publish_destination == 'filesystem' and publish_destination in publish_static_config:
             logging.info('publishing static feed to filesystem')
