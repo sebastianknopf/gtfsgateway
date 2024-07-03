@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% block content %}
+<!-- header -->
+<header class="w3-container" style="padding-top:22px">
+    <h5><b><i class="fa fa-upload"></i> Veröffentlichung</b></h5>
+</header>
+<form>
+    <div class="w3-container w3-padding-16">
+        {% if 'ftp' in publish['static'] %}
+        <input class="w3-radio w3-form-selector w3-lockable" type="radio" id="publish_ftp" name="data[publish][static][destination]" value="ftp" data-selector="publish-ftp"{% if publish['static']['destination'] == 'ftp' %} checked="checked"{% endif %} />
+        <label for="publish_ftp">FTP</label>
+        {% endif %}
+        {% if 'filesystem' in publish['static'] %}
+        <input class="w3-radio w3-form-selector w3-lockable" type="radio" id="publish_filesystem" name="data[publish][static][destination]" value="filesystem" data-selector="publish-filesystem"{% if publish['static']['destination'] == 'filesystem' %} checked="checked"{% endif %} />
+        <label for="publish_filesystem">Dateisystem</label>
+        {% endif %}
+    </div>
+    {% if 'ftp' in publish['static'] %}
+    <div class="w3-container w3-form-selectable{% if not publish['static']['destination'] == 'ftp' %} w3-hide{% endif %} w3-padding-16" id="publish-ftp">
+        <label for="ftp_host">Host</label>
+        <input type="text" class="w3-input w3-border w3-lockable" value="{{ publish['static']['ftp']['host'] }}" name="data[publish][static][ftp][host]" id="ftp_host" />
+    </div>
+    {% endif %}
+    {% if 'filesystem' in publish['static'] %}
+    <div class="w3-container w3-form-selectable{% if not publish['static']['destination'] == 'filesystem' %} w3-hide{% endif %} w3-padding-16" id="publish-filesystem">
+        <label for="filesystem_filename">Dateipfad</label>
+        <input type="text" class="w3-input w3-border w3-lockable" value="{{ publish['static']['filesystem']['filename'] }}" name="data[publish][static][filesystem][filename]" id="filesystem_filename" />
+    </div>
+    {% endif %}
+    <div class="w3-container w3-padding-16">
+        <button class="w3-button w3-mobile w3-theme w3-lockable" ajaxcall="{{ url_for('ajaxcall', group='static', function='fetch') }}" type="submit">
+            <i class="fa fa-upload"></i> Veröffentlichen
+        </button>
+		<div class="w3-mobile" style="display:inline-block;text-align:center;">
+			<img class="w3-loading w3-hide" src="{{ url_for('static', filename='img/loading.gif') }}" width="40" height="40" style="margin:auto;" />
+		</div>
+    </div>
+</form>
+{% endblock %}

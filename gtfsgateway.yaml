@@ -41,6 +41,7 @@ processing:
 
 publish:
     static:
+        destination: ftp
         ftp:
             active: true
             host: '127.0.0.1'

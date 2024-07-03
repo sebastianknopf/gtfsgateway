@@ -274,20 +274,31 @@ class Gateway:
             self._app_config['static_feed_filename']
         )
         
-        if 'ftp' in publish_static_config and publish_static_config['ftp']['active']:
+        publish_destination = publish_static_config['destination']
+        
+        if publish_destination == 'ftp' and publish_destination in publish_static_config:
             logging.info('publishing static feed to ftp')
+            
+            logging.info(f"using host {publish_static_config['ftp']['host']}")
+            logging.info(f"using port {publish_static_config['ftp']['port']}")
 
             ftp = ftplib.FTP()
 
             ftp.connect(
                 publish_static_config['ftp']['host'],
-                publish_static_config['ftp']['port']
+                int(publish_static_config['ftp']['port'])
             )
+            
+            logging.info(f"using username {publish_static_config['ftp']['username']}")
+            logging.info(f"using password {publish_static_config['ftp']['password']}")
 
             ftp.login(
                 publish_static_config['ftp']['username'],
                 publish_static_config['ftp']['password']
             )
+            
+            logging.info(f"using directory {publish_static_config['ftp']['directory']}")
+            logging.info(f"using filename {publish_static_config['ftp']['filename']}")
             
             with open(source_filename, 'rb') as source_file:
                 ftp.storbinary(
@@ -297,7 +308,7 @@ class Gateway:
 
             ftp.quit()
 
-        if 'filesystem' in publish_static_config and publish_static_config['filesystem']['active']:
+        elif publish_destination == 'filesystem' and publish_destination in publish_static_config:
             logging.info('publishing static feed to filesystem')
 
             destination_filename = os.path.join(
@@ -305,7 +316,8 @@ class Gateway:
                 publish_static_config['filesystem']['filename']
             )
 
-            os.makedirs(publish_static_config['filesystem']['directory'])
+            if not os.path.isdir(publish_static_config['filesystem']['directory']):
+                os.makedirs(publish_static_config['filesystem']['directory'])
 
             copy_file(source_filename, destination_filename)
 
