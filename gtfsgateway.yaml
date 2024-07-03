@@ -1,64 +1,68 @@
-fetch:
-    static:
-        remote:
-            url: https://url.to/your/gtfs/feed.zip
-            active: true
-        filesystem:
-            filename:
-            active: false
-
-processing:
-    functions:
-    - name: remove_inactive_routes
-        active: true
-    - name: remove_shapes
-        active: true
-    - name: extend_feed_info
-        active: true
-        params:
-        publisher_name: Your Name
-        publisher_url: https://www.your-name.com
-    - name: extend_routes
-        active: true
-        params:
-        datafile:
-            columns:
-            route_color: Farbe
-            route_long_name: Beschreibung
-            route_short_name: Linie
-            delimiter: ;
-            filename: routedata.csv
-            quotechar: '"'
-    - name: cleanup
-        active: true
-    route_index:
-    - id: 'route-101'
-      name: '101'
-      include: true
-    - id: 'route-102'
-      name: '102'
-      include: false
-
-publish:
-    static:
-        destination: ftp
-        ftp:
-            active: true
-            host: '127.0.0.1'
-            port: 22
-            username: demo
-            password: password
-            directory: '/'
-            filename: 'gtfs.zip'
-        filesystem:
-            active: false
-            filesystem: 
-
+system:
+  distribution: DEMO
 external:
-    integration:
-        gtfstidy: 
-            name: 'gtfstidy\\gtfstidy.v0.2.windows.amd64.exe'
-            args: '-ROscCeD'
-        gtfsvtor:
-            name: 'gtfsvtor\\bin\\gtfsvtor.bat'
-            args: ''
+  integration:
+    gtfstidy:
+      args: -ROscCeD
+      name: gtfstidy\\gtfstidy.v0.2.windows.amd64.exe
+    gtfsvtor:
+      args: ''
+      name: gtfsvtor\\bin\\gtfsvtor.bat
+fetch:
+  static:
+    filesystem:
+      filename: ''
+    remote:
+      url: https://url.to/your/data.zip
+    source: remote
+processing:
+  functions:
+  - name: remove_inactive_routes
+    active: true
+  - name: remove_shapes
+    active: true
+  - name: extend_feed_info
+    active: true
+    params:
+      publisher_name: Demo Publisher Company
+      publisher_url: https://www.demo.org
+  - name: extend_routes
+    active: true
+    params:
+      datafile:
+        columns:
+          route_color: Linienfarbe
+          route_long_name: Langname
+          route_short_name: Kuerzel
+        delimiter: ;
+        filename: routedata.csv
+        quotechar: '"'
+  - name: cleanup 
+    active: true
+  route_index:
+  - name: '800'
+    id: route-800
+    include: true
+  - name: '900'
+    id: route-900
+    include: false
+publish:
+  static:
+    destination: sftp
+    filesystem:
+      directory:
+      filename:
+    ftp:
+      directory: /
+      filename: gtfs.zip
+      host: ftp.demo.org
+      password: Start-12345
+      port: 21
+      username: password
+    sftp:
+      directory:
+      filename:
+      host:
+      password:
+      port:
+      username:

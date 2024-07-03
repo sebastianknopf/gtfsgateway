@@ -1,6 +1,5 @@
 webclient = dict(
     ui = dict(
-        title = 'GTFS gateway',
-        distribution = 'VPE'
+        title = 'GTFS gateway'
     )
 )
