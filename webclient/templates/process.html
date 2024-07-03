@@ -6,10 +6,21 @@
 </header>
 <form>
     <div class="w3-container w3-padding-16">
-		{% for route in processing['route_index'] %}
-		<input class="w3-check w3-lockable" type="checkbox" id="route-{{ route['id'] }}" name="data[processing][route_index][{{ loop.index - 1 }}][include]" value="true"{% if route['include'] %} checked="checked"{% endif %} />
-        <label for="route-{{ route['id'] }}">Linie {{ route['name'] }} ({{ route['id'] }})</label>
-		<br />
+		{% set num_routes = processing['route_index']|length %}
+		{% set cnt_routes = namespace(value=0) %}
+		{% for r in range(0, (num_routes/4)|round(method='ceil')|int) %}
+		<div class="w3-row">
+			{% for c in range(0, 4) %}
+			<div class="w3-col l3 m6 s12">
+				{% if cnt_routes.value < processing['route_index']|length %}
+				{% set route = processing['route_index'][cnt_routes.value] %}
+				<input class="w3-check w3-lockable" type="checkbox" id="route-{{ route['id'] }}" name="data[processing][route_index][{{ loop.index - 1 }}][include]" value="true"{% if route['include'] %} checked="checked"{% endif %} />
+				<label for="route-{{ route['id'] }}">Linie {{ route['name'] }} ({{ route['id'] }})</label>
+				{% set cnt_routes.value = cnt_routes.value + 1 %}
+				{% endif %}
+			</div>
+			{% endfor %}
+		</div>
 		{% endfor %}
     </div>
     <div class="w3-container w3-padding-16">
