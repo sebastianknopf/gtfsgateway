@@ -59,7 +59,8 @@ class Webclient:
         
     @apiresponse
     def _static_rollback(self, **args):
-        return (404, 'Not Implemented')
+        result = self._gateway.rollback()
+        return (0, 'OK') if result else (500, 'FAIL')
 
     @apiresponse
     def _static_process(self, **args):
@@ -80,8 +81,12 @@ class Webclient:
         return (0, 'OK') if result else (500, 'FAIL')
 
     @apiresponse
-    def _static_publish(self, **args):
-        return (404, 'Not Implemented')
+    def _static_publish(self, **args):        
+        request_data = request.json
+        self._update_gateway_config(request_data)
+        
+        result = self._gateway.publish()
+        return (0, 'OK') if result else (500, 'FAIL')
 
     def index(self):
         return redirect('fetch', code=303)

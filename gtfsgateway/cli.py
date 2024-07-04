@@ -22,6 +22,8 @@ def main(command, gatewayconfig, logfile):
         gateway.process()
     elif command == 'publish':
         gateway.publish()
+    elif command = 'rollback':
+        gateway.rollback()
     elif command == 'reset':
         gateway.reset()
 

@@ -5,7 +5,7 @@ import importlib
 import subprocess
 import ftplib
 import logging
-import psysftp
+import pysftp 
 
 from urllib.request import urlretrieve
 
@@ -167,6 +167,30 @@ class Gateway:
 
         self.staging_database.import_csv_files(self._app_config['tmp_directory'])
         clear_directory(self._app_config['tmp_directory'])
+        
+    def _rollback_staging_database(self):
+        logging.info('rolling back staging database')
+        
+        staging_filename = os.path.join(
+            self._app_config['app_directory'], 
+            self._app_config['staging_filename']
+        )
+
+        staging_backup_filename = os.path.join(
+            self._app_config['app_directory'],
+            self._app_config['staging_backup_filename']
+        )
+        
+        if os.path.isfile(staging_filename) and os.path.isfile(staging_backup_filename):
+            # close, rename and reconnect to the staging database
+            self.staging_database.close()
+            
+            os.remove(staging_filename)
+            copy_file(staging_backup_filename, staging_filename)
+            
+            self.staging_database = StaticDatabase(staging_filename)
+        else:
+            raise Exception('either staging database or staging backup is not available') 
 
     def _create_route_index(self):
         logging.info('creating route index')
@@ -303,11 +327,15 @@ class Gateway:
         elif publish_destination == 'sftp' and publish_destination in publish_static_config:
             logging.info('publishing static feed to sftp')
             
+            cnopts = pysftp.CnOpts()
+            cnopts.hostkeys = None
+            
             sftp = pysftp.Connection(
                 host=publish_static_config['sftp']['host'],
                 username=publish_static_config['sftp']['username'],
                 password=publish_static_config['sftp']['password'],
-                port=publish_static_config['sftp']['port']
+                port=int(publish_static_config['sftp']['port']),
+                cnopts=cnopts
             )
             
             sftp.put(source_filename, os.path.join(
@@ -382,6 +410,22 @@ class Gateway:
             logging.error('error executing publish command')
             logging.exception(ex)
             return False
+            
+    def rollback(self, **args):
+        if self._create_data_lock():
+            logging.info('running rollback command')
+            
+            try:
+                self._rollback_staging_database()
+                
+                self._release_data_lock()
+                self.staging_database.close()
+                
+                return True
+            except Exception as ex:
+                logging.error('error executing rollback command')
+                logging.exception(ex)
+                return False
         
     def reset(self, **args):
         logging.info('running reset command')
