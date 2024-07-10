@@ -26,6 +26,7 @@ processing:
     params:
       publisher_name: Demo Publisher Company
       publisher_url: https://www.demo.org
+      contact_email: fahrplan@vpe.de
   - name: extend_routes
     active: true
     params:
