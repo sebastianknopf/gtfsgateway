@@ -28,6 +28,19 @@ processing:
       publisher_url: https://www.demo.org
       contact_email: contact@demo.org
       contact_url: https://www.demo.org/contact
+  - name: extend_agencies
+    active: true
+    params:
+      datafile:
+        columns:
+          agency_id: VU
+          agency_name: Name
+          agency_url: Webseite
+          agency_phone: Telefon
+          agency_email: Email
+        delimiter: ;
+        filename: agencydata.csv
+        quotechar: '"'
   - name: extend_routes
     active: true
     params:
