@@ -21,7 +21,7 @@ class Gateway:
         self._app_config = app_config
         
         self._gateway_config_filename = gateway_config_filename
-        with open(self._gateway_config_filename) as stream:
+        with open(self._gateway_config_filename, mode='r', encoding='utf-8') as stream:
             try:
                 self._gateway_config = yaml.safe_load(stream)
             except yaml.YAMLError as ex:
@@ -58,7 +58,7 @@ class Gateway:
     def _update_gateway_config(self, gateway_config):
         self._gateway_config = gateway_config
     
-        with open(self._gateway_config_filename, 'w') as gateway_config_file:
+        with open(self._gateway_config_filename, mode='w', encoding='utf-8') as gateway_config_file:
             yaml.dump(
                 gateway_config,
                 gateway_config_file,

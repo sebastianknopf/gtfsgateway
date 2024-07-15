@@ -33,11 +33,22 @@ processing:
     params:
       datafile:
         columns:
-          route_color: Linienfarbe
-          route_long_name: Langname
-          route_short_name: Kuerzel
+          route_color: "Linienfarbe"
+          route_long_name: "Langname"
+          route_short_name: "Kuerzel"
         delimiter: ;
         filename: routedata.csv
+        quotechar: '"'
+  - name: extend_stops
+    active: true
+    params:
+      datafile:
+        columns:
+          stop_id: "Globale Haltepunkt-Kennung"
+          stop_lat: "Breitengrad"
+          stop_lon: "Längengrad"
+        delimiter: ;
+        filename: stopdata.csv
         quotechar: '"'
   - name: cleanup 
     active: true
