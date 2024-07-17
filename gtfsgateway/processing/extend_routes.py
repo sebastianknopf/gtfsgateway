@@ -10,6 +10,11 @@ def extend_routes(gateway, params):
         cursor.execute("ALTER TABLE routes ADD COLUMN route_text_color TEXT NOT NULL DEFAULT 'FFFFFF'")
     except Exception as ex:
         pass
+        
+    try:
+        cursor.execute("ALTER TABLE routes ADD COLUMN route_url TEXT NOT NULL DEFAULT ''")
+    except Exception as ex:
+        pass
 
     df_filename = params['datafile']['filename']
     df_columns = params['datafile']['columns']
@@ -19,6 +24,7 @@ def extend_routes(gateway, params):
     df_content = gateway._load_processing_datafile(df_filename, df_columns, df_delimiter, df_quotechar)
     for rd in df_content:
 
+        route_type = rd['route_type']
         route_color = rd['route_color']
         route_color = route_color.lstrip('#')
  
@@ -26,26 +32,34 @@ def extend_routes(gateway, params):
             route_text_color = '000000'
         else:
             route_text_color = 'FFFFFF'
+            
+        route_url = rd['route_url']
 
-        cursor.execute(
-            "UPDATE routes SET route_long_name = ?, route_color = ?, route_text_color = ? WHERE route_short_name = ?",
-            (
-                rd['route_long_name'],
-                route_color,
-                route_text_color,
-                rd['route_short_name']
+        if not route_type == '':
+            cursor.execute(
+                "UPDATE routes SET route_type = ?, route_long_name = ?, route_color = ?, route_text_color = ?, route_url = ? WHERE route_short_name = ?",
+                (
+                    route_type,
+                    rd['route_long_name'],
+                    route_color,
+                    route_text_color,
+                    route_url,
+                    rd['route_short_name']
+                )
             )
-        )
+        else:
+            cursor.execute(
+                "UPDATE routes SET route_long_name = ?, route_color = ?, route_text_color = ?, route_url = ? WHERE route_short_name = ?",
+                (
+                    rd['route_long_name'],
+                    route_color,
+                    route_text_color,
+                    route_url,
+                    rd['route_short_name']
+                )
+            )
 
 def _calculate_luminance(hexcolor):
     rgb = tuple(int(hexcolor[i:i + 2], 16) for i in (0, 2, 4))
-    """for c in rgb:
-        c = c / 255.0
-        if c <= 0.04045:
-            c = c / 12.92 
-        else:
-            c = ((c + 0.055) / 1.055) ** 2.4
-    
-    return 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2]"""
 
     return rgb[0] * 0.2126 + rgb[1] * 0.7152 + rgb[2] * 0.0722

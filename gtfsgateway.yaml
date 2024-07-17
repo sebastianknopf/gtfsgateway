@@ -46,9 +46,11 @@ processing:
     params:
       datafile:
         columns:
+          route_type: "Produkttyp"
           route_color: "Linienfarbe"
           route_long_name: "Langname"
           route_short_name: "Kuerzel"
+          route_url: "Kurzname"
         delimiter: ;
         filename: routedata.csv
         quotechar: '"'
