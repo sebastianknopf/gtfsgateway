@@ -32,9 +32,10 @@ def extend_agencies(gateway, params):
         for ad in df_content:
             if agency['agency_id'] == ad['agency_id']:
                 cursor.execute(
-                    "UPDATE agency SET agency_name = ?, agency_phone = ?, agency_email = ? WHERE agency_id = ?",
+                    "UPDATE agency SET agency_name = ?, agency_url = ?, agency_phone = ?, agency_email = ? WHERE agency_id = ?",
                     (
                         ad['agency_name'],
+                        ad['agency_url'],
                         ad['agency_phone'],
                         ad['agency_email'],
                         agency['agency_id']
