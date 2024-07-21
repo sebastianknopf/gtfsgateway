@@ -209,13 +209,16 @@ class Gateway:
                         include = False
                     )
                 )
-                
+
+        updated_processing_routes = list(gateway_config_processing_routes)        
         for i in range(0, len(gateway_config_processing_routes)):
             route = gateway_config_processing_routes[i]
             if not any(r['route_short_name'] == route['name'] for r in route_base_data):
-                logging.info(f"removing route entry for {route['route_short_name']} ({ route['route_id']})")
+                logging.info(f"removing route entry for {route['name']} ({ route['id']})")
 
-                del gateway_config_processing_routes[i]
+                del updated_processing_routes[i]
+
+        gateway_config_processing_routes = updated_processing_routes
 
         self._gateway_config['processing']['route_index'] = gateway_config_processing_routes
 
