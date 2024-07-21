@@ -166,6 +166,7 @@ cython_debug/
 test.yaml
 /config/*
 /data/*
+/app/*
 /tmp/*
 /bin/*
 /app/*
