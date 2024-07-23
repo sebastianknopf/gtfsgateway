@@ -21,6 +21,8 @@ processing:
     active: true
   - name: remove_shapes
     active: true
+  - name: remove_invalid_transfers
+    active: true
   - name: extend_feed_info
     active: true
     params:
