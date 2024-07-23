@@ -21,7 +21,7 @@ def remove_invalid_transfers(gateway, params):
             from_to_distance = _haversine(from_stop_position, to_stop_position)
             from_to_speed = from_to_distance / from_to_min_seconds
             
-            if from_to_speed > 4:
+            if from_to_speed > 1.5:
                 logging.info(f"removing invalid transfer from {transfer['from_stop_id']} to {transfer['to_stop_id']} (type {transfer['transfer_type']}, {from_to_distance} meters in {from_to_min_seconds} seconds)")
                 
                 cursor.execute("DELETE FROM transfers WHERE from_stop_id = ? AND to_stop_id = ?", 
