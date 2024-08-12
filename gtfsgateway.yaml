@@ -33,15 +33,23 @@ processing:
   - name: extend_agencies
     active: true
     params:
-      datafile:
+      agency_datafile:
         columns:
-          agency_id: VU
-          agency_name: Name
-          agency_url: Webseite
-          agency_phone: Telefon
-          agency_email: Email
+          agency_primary_key: "Kuerzel"
+          agency_name: "Name"
+          agency_url: "Webseite"
+          agency_phone: "Telefon"
+          agency_email: "Email"
+          agency_number: "Nummer"
         delimiter: ;
-        filename: agencydata.csv
+        filename: organisationdata.csv
+        quotechar: '"'
+      routes_datafile:
+        columns:
+          route_short_name: "Name"
+          agency_foreign_key: "Verkehrsunternehmen"
+        delimiter: ;
+        filename: routedata.csv
         quotechar: '"'
   - name: extend_routes
     active: true
