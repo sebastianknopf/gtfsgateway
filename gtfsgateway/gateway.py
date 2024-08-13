@@ -168,6 +168,11 @@ class Gateway:
         self.staging_database.import_csv_files(self._app_config['tmp_directory'])
         clear_directory(self._app_config['tmp_directory'])
         
+        # delete all routes without route_short_name
+        cursor = self.staging_database._connection.cursor()
+        cursor.execute("DELETE FROM routes WHERE route_short_name IS NULL OR route_short_name = ''")
+        self.staging_database._connection.commit()
+        
     def _rollback_staging_database(self):
         logging.info('rolling back staging database')
         
@@ -198,14 +203,14 @@ class Gateway:
         gateway_config_processing_routes = self._gateway_config['processing']['route_index']
 
         route_base_data = self.staging_database.get_route_base_info()
-        for route in route_base_data:
-            if not any(r['name'] == route['route_short_name'] and r['id'] == route['route_id'] for r in gateway_config_processing_routes):
+        for route in route_base_data:            
+            if not any(str(r['name']) == str(route['route_short_name']) and str(r['id']) == str(route['route_id']) for r in gateway_config_processing_routes): 
                 logging.info(f"creating route entry for {route['route_short_name']} ({ route['route_id']})")
                 
                 gateway_config_processing_routes.append(
                     dict(
-                        name = route['route_short_name'],
-                        id = route['route_id'],
+                        name = str(route['route_short_name']),
+                        id = str(route['route_id']),
                         include = False
                     )
                 )
@@ -213,7 +218,7 @@ class Gateway:
         updated_processing_routes = list(gateway_config_processing_routes)        
         for i in range(0, len(gateway_config_processing_routes)):
             route = gateway_config_processing_routes[i]
-            if not any(r['route_short_name'] == route['name'] for r in route_base_data):
+            if not any(str(r['route_short_name']) == str(route['name']) for r in route_base_data):
                 logging.info(f"removing route entry for {route['name']} ({ route['id']})")
 
                 del updated_processing_routes[i]
